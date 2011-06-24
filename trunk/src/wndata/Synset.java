@@ -16,7 +16,7 @@ public class Synset {
     protected WordSense[] words;
     protected int lex_id;
     protected int p_cnt;
-    protected Relation[] ptrs;
+    protected SynsetPointer[] ptrs;
     protected SynsetFrame[] frames;
     protected String[] glosses;
 
