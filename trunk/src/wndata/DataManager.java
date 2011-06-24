@@ -6,12 +6,8 @@
  * 如果是要查Synset，你先看给出的Synset是不是在缓存里,是的话直接返回,不是的话可以用WordNetFileReader读出来.
 **/
 
-<<<<<<< .mine
-=======
-public class DataManager {
->>>>>>> .r6
 
-<<<<<<< .mine
+public class DataManager {
 public DataManager                                                         //返回相应的对象  高级要求：单例类  缓存  颜色
 {
                                                             
@@ -195,37 +191,9 @@ public DataManager                                                         //返
    
    
    
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    public Synset getSynset(int offset,PartOfSpeech pos);       //进入data，读取一行，返回synset
    
    public Synset[] lookup(String word, PartOfSpeech pos);      //返回单词对应词性的所有 synset
-=======
-    public IndexEntry getIndex(String word,PartOfSpeech pos)
-    {
-        return null;
-    }
-    public Synset getSynset(int offset,PartOfSpeech pos)
-    {
-        return null;
-    }
-    public Synset[] lookup(String word,PartOfSpeech pos)
-    {
-        return null;
-    }
->>>>>>> .r6
+
 }
 
