@@ -6,9 +6,19 @@ package wndata;
  * 如果是要查Synset，你先看给出的Synset是不是在缓存里,是的话直接返回,不是的话可以用WordNetFileReader读出来.
  **/
 
-public DataManager {
+public class DataManager {
 
-    public IndexEntry getIndex(String word,PosOfSpeech pos);
-    public Synset getSynset(int offset,PosOfSpeech pos);
+    public IndexEntry getIndex(String word,PartOfSpeech pos)
+    {
+        return null;
+    }
+    public Synset getSynset(int offset,PartOfSpeech pos)
+    {
+        return null;
+    }
+    public Synset[] lookup(String word,PartOfSpeech pos)
+    {
+        return null;
+    }
 }
 
