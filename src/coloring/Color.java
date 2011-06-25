@@ -5,8 +5,6 @@ public class Color {
 	private byte g;
 	private byte b;
 	private byte a;
-	Color(){
-	}
 	Color(float r, float g, float b, float a){
 		this.r=(byte)(r*255+0.5);
 		this.g=(byte)(g*255+0.5);
