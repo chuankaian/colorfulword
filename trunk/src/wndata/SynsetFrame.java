@@ -10,7 +10,17 @@ public class SynsetFrame {
 
     protected int f_num;
     protected int w_num;
-
+    
+    public SynsetFrame()
+    {
+    	
+    }
+    public SynsetFrame(int f_num,int w_num)
+    {
+    	this.f_num = f_num;
+    	this.w_num = w_num;
+    }
+    
     public int getFNum() {
         return f_num;
     }

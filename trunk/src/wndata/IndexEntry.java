@@ -7,7 +7,7 @@ import java.util.List;
 
 
 /***
-    LZYNOTE:这个类用来代表一个Index条目。不过他实现的时候用的是一个Read方法生成数据，你也可以实现一个构造函数
+    LZYNOTE:这个类用来代表一个Index条目。不过他实现的时候用的是丄1�7个Read方法生成数据，你也可以实现一个构造函敄1�7
 ***/
 
 public class IndexEntry {
@@ -19,7 +19,23 @@ public class IndexEntry {
     protected int sense_cnt;
     protected int tagsense_cnt;
     protected int[] synset_offsets;
-
+    
+    public IndexEntry()
+    {
+    	
+    }
+    //IndexEntry(String, PartOfSpeech, int, int, String[], String, int[]) is
+    public IndexEntry(String lemma,PartOfSpeech pos,int synset_cnt,int p_cnt,String[] ptr_symbols,int tagsense_cnt,int[] synset_offsets)
+    {
+    	this.lemma = lemma;
+    	this.pos = pos;
+    	this.synset_cnt = synset_cnt;
+    	this.p_cnt = p_cnt;
+    	this.ptr_symbols = ptr_symbols;
+    	this.tagsense_cnt = tagsense_cnt;
+    	this.synset_offsets = synset_offsets;
+    }
+    
     public String getLemma() {
         return lemma;
     }
