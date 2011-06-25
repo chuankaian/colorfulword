@@ -31,17 +31,49 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected String lastQueryWord;
     protected Map<PartOfSpeech,Synset[]> lastMap;
     protected Queryer queryer;
-    public Browser() {
+    protected Synset lastHeadSynset;
+    protected LinkedList<WordAndSynset> historyLink;
+    protected ListIterator<WordAndSynset> currPostion;
+    protected class WordAndSynset {
+        public String word;
+        public PartOfSpeech pos;
+        public int synsetOffset;
+        public WordAndSynset(String word, PartOfSpeech pos, int synsetOffset) {
+            this.word = word;
+            this.pos = pos;
+            this.synsetOffset = synsetOffset;
+        }
+    }
 
+    public Browser() {
+        historyLink = new LinkedList();
         JPanel queryPanel = new JPanel();
         queryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         queryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         forward = new BasicArrowButton(SwingConstants.WEST);
         forward.setActionCommand("Forward");
+        forward.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    System.out.println("Forward Clicked");
+                    if (currPostion != null && currPostion.hasPrevious()) {
+                        WordAndSynset previous = currPostion.previous();
+                        query(previous.word, previous.pos, previous.synsetOffset);
+                    }
+                }
+            });
         queryPanel.add(forward);
         backward = new BasicArrowButton(SwingConstants.EAST);
         backward.setActionCommand("Backward");
+        backward.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    System.out.println("Backward Clicked");
+                    if (currPostion != null && currPostion.hasNext()) {
+                        WordAndSynset next = currPostion.next();
+                        query(next.word,next.pos,next.synsetOffset);
+                    }
+                }
+            });
         queryPanel.add(backward);
 
         JLabel queryLabel = new JLabel("Query:");
@@ -146,7 +178,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         } else if (cmd.equals("About us")) {
             // showAbout();
         } else if (cmd.equals("Query")) {
-            query(queryInput.getText());
+            query(queryInput.getText(),null,-1);
         } else if (cmd.equals("Cancel")) {
             cancelQuery();
         } else if (cmd.equals("Select All")) {
@@ -154,16 +186,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             for (int i = 0; i < ALL_POINTERSYMBOL.length; i++) {
                 pointerSymbolCheckBoxes[i].setSelected(true);
                 // System.out.println(pointerSymbolCheckBoxes[i].isSelected());
-                redisplay();
             }
-            HtmlPraser html = new HtmlPraser(lastQueryWord,lastMap);
-            outputText.setText(html.getHtml());
-
+            redisplay();
         } else if (cmd.equals("Select None")) {
             for (int i = 0; i < ALL_POINTERSYMBOL.length; i++)
                 pointerSymbolCheckBoxes[i].setSelected(false);
             redisplay();
-        } else {
+        }
+        else {
             System.err.println("Browser.actionPerformed: unknown command: " + cmd);
         }
     }
@@ -174,6 +204,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
      * to be started, using the target of the link as the query.
      */
     public void hyperlinkUpdate(HyperlinkEvent event) {
+        System.out.println(event.getEventType());
     }
     /**
      * ItemListener method called when a checkbox menu item is changed.
@@ -191,7 +222,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
     protected void redisplay() {
         if (lastQueryWord != null && lastMap != null) {
-            HtmlPraser content = new HtmlPraser(lastQueryWord,lastMap);
+            HtmlPraser content = new HtmlPraser(lastQueryWord,lastMap,lastHeadSynset);
             outputText.setText(content.getHtml());
         }
     }
@@ -213,11 +244,11 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     }
 
 
-    protected void query(String queryWord)
+    protected void query(String queryWord, PartOfSpeech pos, int synsetOffset)
     {
         if (queryer != null)
             cancelQuery();
-        queryer = new Queryer(queryWord);
+        queryer = new Queryer(queryWord,pos,synsetOffset);
         queryer.execute();
     }
 
@@ -238,8 +269,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected class Queryer extends SwingWorker<Object[],Void> {
         protected String queryWord;
         protected boolean[] posFlags;
-        public Queryer(String queryWord) {
+        protected PartOfSpeech pos;
+        int synsetOffset;
+        public Queryer(String queryWord,PartOfSpeech pos,int synsetOffset) {
             this.queryWord = queryWord;
+            this.pos = pos;
+            this.synsetOffset= synsetOffset;
         }
 
         // public Searcher(String queryWord, boolean[] posFlags) {
@@ -264,8 +299,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             Object[] result = new Object[2];
             result[0] = map;
 
-
-            result[1] = new HtmlPraser(queryWord, map);
+            Synset headSynset;
+            if (pos != null)
+                headSynset = manager.getSynset(synsetOffset,pos);
+            else
+                headSynset = null;
+            result[1] = new HtmlPraser(queryWord, map, headSynset);
             return result;
         }
 
@@ -276,6 +315,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         public void done() {
             try {
                 if (!isCancelled()) {
+                    historyLink.add(new WordAndSynset(queryWord,pos,synsetOffset));
+                    currPostion = historyLink.listIterator(0);
                     Object[] result;
                     result = get();
                     Map<PartOfSpeech,Synset[]> map = (Map<PartOfSpeech,Synset[]>) result[0];
@@ -319,15 +360,16 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     }
 
     public class HtmlPraser {
+        Synset headSynset;
         String queryWord;
         Map<PartOfSpeech,Synset[]> map;
         boolean[] posFlags;
         boolean[] ptrFlags;
         StringBuffer content;
-        public HtmlPraser(String word,Map<PartOfSpeech,Synset[]> map) {
+        public HtmlPraser(String word,Map<PartOfSpeech,Synset[]> map, Synset headSynset) {
             this.map = map;
             this.queryWord = word;
-
+            this.headSynset = headSynset;
             if (map == null || word == null) {
                 content = new StringBuffer("");
                 return ;
@@ -364,9 +406,34 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                           "h1 { font-size: 16pt; font-weight: bold; }" +
                           "h2 { font-size: 14pt; font-weight: bold; }" +
                           "</style>" +
-                          "</head><body>" +
-                          "<h1>Results for \"" + queryWord + "\":</h1>";
+                          "</head><body>";
             content.append(html);
+            if (headSynset != null) {
+                String label = headSynset.getSSType().getDescription();
+                label = label.substring(0,1).toUpperCase() + label.substring(1);
+
+                html += "<h1> Clicked Synset is " + label + "</h1>";
+                content.append("<h1> Clicked Synset is " + label + "</h1>");
+                html += "<ol>";
+                content.append("<ol>");
+                html+= "<li>";
+                content.append("<li>");
+                prepareHTMLWordList(headSynset);
+                prepareHTMLGlosses(headSynset);
+                prepareHTMLSynsetPointers(headSynset);
+                html += "</li>";
+                content.append("</li>");
+                html += "</ol>";
+                content.append("</ol>");
+
+                html += "<h1>Rest Synsets of \"" + queryWord + "\":</h1>";
+                content.append("<h1>Rest Synsets of \"" + queryWord + "\":</h1>");
+            }
+            else {
+                html += "<h1>Results for \"" + queryWord + "\":</h1>";
+                content.append("<h1>Results for \"" + queryWord + "\":</h1>");
+            }
+
             for (int i = 0; i < ALL_POS.length; i++) {
                 Synset[] synsets = map.get(ALL_POS[i]);
                 if (synsets != null && posFlags[i]) {
