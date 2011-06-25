@@ -14,8 +14,12 @@ public DataManager                                                         //返
    static                                                                  //初始化块，将index分类读入内存，以map形式存储
    {
 	 public RandomAccessFile raf;
+	 Synset[] n_cache = new Synset[10000];                    //缓存
+	 Synset[] v_cache = new Synset[10000];                    //缓存
+	 Synset[] a_cache = new Synset[10000];                    //缓存
+	 Synset[] r_cache = new Synset[10000];                    //缓存
 	 
-	 File n_index_file = new File("F:\\WordNet\\2.1\\dict\\index.noun");  //四个索引的路径 
+	 File n_index_file = new File("F:\\WordNet\\2.1\\dict\\index.noun");  //四个索引的路径 ????相对路径
 	 File v_index_file = new File("F:\\WordNet\\2.1\\dict\\index.verb");
 	 File a_index_file = new File("F:\\WordNet\\2.1\\dict\\index.adj");
 	 File r_index_file = new File("F:\\WordNet\\2.1\\dict\\index.adv");
@@ -26,7 +30,7 @@ public DataManager                                                         //返
 	 Hashmap r_index = new HashMap();
 	 
 	 raf = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\preindex.adj")   //单独取出前面的说明编成文件 
-	 long pre = raf.length();                                        	 //说明的长度
+	 long pre = raf.length();                                        	 //说明的长度????换行符
 	 String wor,inde;                                                    //wor是单词，inde是该行索引，他们的对放入map                                                                  	
 	 String[] strs;                                                      //对每行index切词的数组
 	 
@@ -39,8 +43,8 @@ public DataManager                                                         //返
 		 strs = inde.split(" ");                 //切词
 		 wor = strs[0];                          //取单词
 		 n_index.put(wor,inde);                  //放入map保存
-		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre< = totallen);
+		 pre += inde.length()+2;                   //移到下一行的位置,2是换行符
+	 }while(pre <= totallen);
 	
 	 
 	 raf = new RandomAccessFile(v_index_file, "r");                       //动词
@@ -53,7 +57,7 @@ public DataManager                                                         //返
 		 wor = strs[0];                          //取单词
 		 v_index.put(wor,inde);                  //放入map保存
 		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre< = totallen);
+	 }while(pre <= totallen);
 	
 	 
 	 raf = new RandomAccessFile(a_index_file, "r");                       //形容词  
@@ -66,7 +70,7 @@ public DataManager                                                         //返
 		 wor = strs[0];                          //取单词
 		 a_index.put(wor,inde);                  //放入map保存
 		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre< = totallen);
+	 }while(pre <= totallen);
 		 
 	
 	 raf = new RandomAccessFile(r_index_file, "r");                       //副词
@@ -79,10 +83,12 @@ public DataManager                                                         //返
 		 wor = strs[0];                          //取单词
 		 r_index.put(wor,inde);                  //放入map保存
 		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre< = totallen);
+	 }while(pre <= totallen);
 		 
    }	 
-                                                          
+   
+  
+   
 	
    public IndexEntry getIndex(String word,PartOfSpeech pos)   //根据单词 和词性 ，在map中查询 ，解析并返回有关索引的indexentry类
   {
@@ -111,7 +117,7 @@ public DataManager                                                         //返
 		 		 
 		 break;
 	  
-	  case  VERB：                                                                   // 动词abuse v 4 3 @ ~ + 4 2 02492450 00200244 00836339 00200587  
+	  case  VERB:                                                                   // 动词abuse v 4 3 @ ~ + 4 2 02492450 00200244 00836339 00200587  
 		 index_line = v_index.get(word);   //      0    1 2 3 4 5 6 7 8 9           10     11          12   
 	     strs = index_line.split(" ");
 	     entry.lemma = word;
@@ -191,9 +197,267 @@ public DataManager                                                         //返
    
    
    
-   public Synset getSynset(int offset,PartOfSpeech pos);       //进入data，读取一行，返回synset
+   public Synset getSynset(int offset,PartOfSpeech pos)       //读取synset，  先进入缓存，有则直接返回，否则进入data，写缓存，赋值返回
+   {
+	   Synset   syn = new Synset();                           //返回变量
+	   String[] strs;
+	   String  data;                                          //辅助拆词
+	   int add = offset|15;                                   //转换cache地址
+	   int local,lenofgloss;
+	   switch(pos)
+	   {
+	   case NOUN: 
+		   if(n_cache[add]!=null)                            //????
+		   {
+			   return n_cache[add];
+		   }
+		   else
+		   {
+			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.noun");    //????
+			   raf.seek(offset);                                                                      //定位
+			   data = raf.readLine();                                                                 //读行
+			   strs = data.split(" ");                                                                //拆词
+          // synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss 
+		//    00072592        04          n        02        omission 1 skip 0             005   @ 00068933 n 0000   + 02588754 v 0202   + 00607944 v 0105 + 00607346 v 0103 ~ 00064448 n 0000 | a mistake resulting from neglect  			  
+			   syn.offset = strs[0];                                // protected int offset;
+			   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
+			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
+			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+			                                                                                  
+			                                                                  // ????// protected int lex_id;数组????
+			   local = 4+2*syn.w_cnt;
+			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
+			  
+			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
+			   for(int i = 0;i<syn.p_cnt ;i++)
+			   {
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
+				   syn.ptrs[i].pos = strs[local+3+i*4];
+				   syn.ptrs[i].source_target = strs[local+4+i*4];
+			   }
+			   
+			   lenofgloss = strs.size()-local-syn.p_cnt*4-1;     // protected String[] glosses;
+			   syn.glosses = new String[lenofgloss];
+			   for(int i =0; i<lenofgloss ;i++)
+			   {
+				   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
+			   }
+			                           
+			                     //名词 没有 frames                    // protected SynsetFrame[] frames;
+			   
+			   n_cache[add] = new Synset(syn);                 //放入缓存
+               
+			   return syn;
+		   }
+           break;
+               
+               
+	   case ADJ:
+		   if(a_cache[add]!=null)                            //????
+		   {
+			   return a_cache[add];
+		   }
+		   else
+		   {
+			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adj");    //????
+			   raf.seek(offset);                                                                      //定位
+			   data = raf.readLine();                                                                 //读行
+			   strs = data.split(" ");                                                                //拆词
+         		  
+			   syn.offset = strs[0];                                // protected int offset;
+			   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
+			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
+			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+			                                                                                  
+			                                                                  // ????// protected int lex_id;数组????
+			   local = 4+2*syn.w_cnt;
+			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
+			  
+			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
+			   for(int i = 0;i<syn.p_cnt ;i++)
+			   {
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
+				   syn.ptrs[i].pos = strs[local+3+i*4];
+				   syn.ptrs[i].source_target = strs[local+4+i*4];
+			   }
+			   
+			   lenofgloss = strs.size()-local-syn.p_cnt*4-1;     // protected String[] glosses;
+			   syn.glosses = new String[lenofgloss];
+			   for(int i =0; i<lenofgloss ;i++)
+			   {
+				   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
+			   }
+			                           
+			                     // 没有 frames                    // protected SynsetFrame[] frames;
+			   
+			   a_cache[add] = new Synset(syn);                 //放入缓存
+               
+			   return syn;
+		   }
+           break;
+		   
+	   case ADV:
+		   if(r_cache[add]!=null)                            //????
+		   {
+			   return r_cache[add];
+		   }
+		   else
+		   {
+			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adv");    //????
+			   raf.seek(offset);                                                                      //定位
+			   data = raf.readLine();                                                                 //读行
+			   strs = data.split(" ");                                                                //拆词
+         		  
+			   syn.offset = strs[0];                                // protected int offset;
+			   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
+			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
+			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+			                                                                                  
+			                                                                  // ????// protected int lex_id;数组????
+			   local = 4+2*syn.w_cnt;
+			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
+			  
+			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
+			   for(int i = 0;i<syn.p_cnt ;i++)
+			   {
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
+				   syn.ptrs[i].pos = strs[local+3+i*4];
+				   syn.ptrs[i].source_target = strs[local+4+i*4];
+			   }
+			   
+			   lenofgloss = strs.size()-local-syn.p_cnt*4-1;     // protected String[] glosses;
+			   syn.glosses = new String[lenofgloss];
+			   for(int i =0; i<lenofgloss ;i++)
+			   {
+				   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
+			   }
+			                           
+			                     // 没有 frames                    // protected SynsetFrame[] frames;
+			   
+			   r_cache[add] = new Synset(syn);                 //放入缓存
+               
+			   return syn;
+		   }
+           break;
+		   
+		   
+	   case ADJS:
+		   if(a_cache[add]!=null)                            //????
+		   {
+			   return a_cache[add];
+		   }
+		   else
+		   {
+			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adj");    //????
+			   raf.seek(offset);                                                                      //定位
+			   data = raf.readLine();                                                                 //读行
+			   strs = data.split(" ");                                                                //拆词
+         		  
+			   syn.offset = strs[0];                                // protected int offset;
+			   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
+			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
+			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+			                                                                                  
+			                                                                  // ????// protected int lex_id;数组????
+			   local = 4+2*syn.w_cnt;
+			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
+			  
+			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
+			   for(int i = 0;i<syn.p_cnt ;i++)
+			   {
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
+				   syn.ptrs[i].pos = strs[local+3+i*4];
+				   syn.ptrs[i].source_target = strs[local+4+i*4];
+			   }
+			   
+			   lenofgloss = strs.size()-local-syn.p_cnt*4-1;     // protected String[] glosses;
+			   syn.glosses = new String[lenofgloss];
+			   for(int i =0; i<lenofgloss ;i++)
+			   {
+				   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
+			   }
+			                           
+			                     // 没有 frames                    // protected SynsetFrame[] frames;
+			   
+			   a_cache[add] = new Synset(syn);                 //放入缓存
+               
+			   return syn;
+		   }
+           break;
+		  
+		     
+		 case VERB:  //多了 frame  
+			 if(v_cache[add]!=null)                            //????
+			   {
+				   return v_cache[add];
+			   }
+			 else
+			 {
+				   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.verb");    //????
+				   raf.seek(offset);                                                                      //定位
+				   data = raf.readLine();                                                                 //读行
+				   strs = data.split(" ");                                                                //拆词
+	         	//synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss 
+			   //00003826 29                   v        02        hiccup 0 hiccough 0          003    @ 00001740 v 0000 + 14168180 n 0202 + 14168180 n 0101    01 + 02 00 | breathe spasmodically,                             
+				   
+				   syn.offset = strs[0];                                // protected int offset;
+				   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
+				   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
+				   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+				                                                                                  
+				                                                                  // ????// protected int lex_id;数组????
+				   local = 4+2*syn.w_cnt;
+				   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
+				  
+				   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
+				   for(int i = 0;i<syn.p_cnt ;i++)
+				   {
+					   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+					   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
+					   syn.ptrs[i].pos = strs[local+3+i*4];
+					   syn.ptrs[i].source_target = strs[local+4+i*4];
+				   }
+				   
+				                                       // protected SynsetFrame[] frames;
+				   local += 4*syn.p_cnt+1;    //定位到numofframes
+				   int lenofframes = Integer.parseInt(strs[local]);
+				   syn.frames =new SynsetFrame[lenofframes];
+				   for(int i =0 ;i< lenofframes ;i++)
+				   {
+					   syn.frames[i].f_num = Integer.parseInt(strs[local+2+2*i]);
+				       syn.frames[i].w_num = Integer.parseInt(strs[local+3+2*i]);
+				   }
+				   		   
+				   
+				   lenofgloss = strs.size()-local-2-2*lenofframes;     // protected String[] glosses;
+				   syn.glosses = new String[lenofgloss];
+				   for(int i =0; i<lenofgloss ;i++)
+				   {
+					   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
+				   }
+                 
+			   v_cache[add] = new Synset(syn);                 //放入缓存	       
+	   		   return syn;
+			 }
+	      break;				   
+	   }//switch
+   }//public 
    
    public Synset[] lookup(String word, PartOfSpeech pos);      //返回单词对应词性的所有 synset
-
+   {
+	   
+	   IndexEntry tmp = getIndex(word,pos);
+	   Synset syn = new Synset[tmp.synset_cnt];
+	   for(int i =0 ;i < tmp.synset_cnt;i++)
+	   {
+		   syn[i] = getSynset(synset_offsets[i],pos);
+	   }
+	   
+	   return syn;   
+   }
 }
 
