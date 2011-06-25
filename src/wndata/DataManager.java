@@ -6,192 +6,101 @@
  * 如果是要查Synset，你先看给出的Synset是不是在缓存里,是的话直接返回,不是的话可以用WordNetFileReader读出来.
 **/
 
-
+                                                             
 public class DataManager {
-public DataManager                                                         //返回相应的对象  高级要求：单例类  缓存  颜色
+public DataManager                                                         //用上switch压缩，构造函数，maker，判断缓存，调错；  颜色
 {
                                                             
    static                                                                  //初始化块，将index分类读入内存，以map形式存储
    {
-	 public RandomAccessFile raf;
+	 RandomAccessFile raf;
 	 Synset[] n_cache = new Synset[10000];                    //缓存
 	 Synset[] v_cache = new Synset[10000];                    //缓存
 	 Synset[] a_cache = new Synset[10000];                    //缓存
 	 Synset[] r_cache = new Synset[10000];                    //缓存
 	 
-	 File n_index_file = new File("F:\\WordNet\\2.1\\dict\\index.noun");  //四个索引的路径 ????相对路径
-	 File v_index_file = new File("F:\\WordNet\\2.1\\dict\\index.verb");
-	 File a_index_file = new File("F:\\WordNet\\2.1\\dict\\index.adj");
-	 File r_index_file = new File("F:\\WordNet\\2.1\\dict\\index.adv");
+	 File n_index_file = new File("../dict/index.noun");                //四个索引的相对路径
+	 File v_index_file = new File("../dict/index.verb");
+	 File a_index_file = new File("../dict/index.adj");
+	 File r_index_file = new File("../dict/index.adv");
 	 
 	 HashMap n_index = new HashMap();                                     //四种单词建立 单词到对应index行的map
 	 HashMap v_index = new HashMap();
 	 HashMap a_index = new HashMap();
-	 Hashmap r_index = new HashMap();
+	 HashMap r_index = new HashMap();
 	 
-	 raf = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\preindex.adj")   //单独取出前面的说明编成文件 
-	 long pre = raf.length();                                        	 //说明的长度????换行符
+	 File temp = new File("../dict/preindex.adj");
+	 RandomAccessFile raf_1 = new RandomAccessFile(temp,"r");                    //单独取出前面的说明编成文件
+	 long pre ;                                        	                 //说明的长度换行符
 	 String wor,inde;                                                    //wor是单词，inde是该行索引，他们的对放入map                                                                  	
 	 String[] strs;                                                      //对每行index切词的数组
+	 long totallen;
 	 
-	 raf = new RandomAccessFile(n_index_file, "r");                       //名词
-	 long totallen = raf.length();                                        //全文长度
-	 do
-	 {
-		 raf.seek(pre);                          //直接定位到正文
-		 inde = raf.readLine();                  //读取一行
-		 strs = inde.split(" ");                 //切词
-		 wor = strs[0];                          //取单词
-		 n_index.put(wor,inde);                  //放入map保存
-		 pre += inde.length()+2;                   //移到下一行的位置,2是换行符
-	 }while(pre <= totallen);
-	
+	 File[] index_file ={n_index_file,v_index_file,a_index_file,r_index_file};
+	 HashMap[] index_map = {n_index,v_index,a_index,r_index};
 	 
-	 raf = new RandomAccessFile(v_index_file, "r");                       //动词
-	 long totallen = raf.length();                                        //全文长度
-	 do
+	 for(int i =0 ;i<4;i++)
 	 {
-		 raf.seek(pre);                          //直接定位到正文
-		 inde = raf.readLine();                  //读取一行
-		 strs = inde.split(" ");                 //切词
-		 wor = strs[0];                          //取单词
-		 v_index.put(wor,inde);                  //放入map保存
-		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre <= totallen);
-	
-	 
-	 raf = new RandomAccessFile(a_index_file, "r");                       //形容词  
-	 long totallen = raf.length();                                        //全文长度
-	 do
-	 {
-		 raf.seek(pre);                          //直接定位到正文
-		 inde = raf.readLine();                  //读取一行
-		 strs = inde.split(" ");                 //切词
-		 wor = strs[0];                          //取单词
-		 a_index.put(wor,inde);                  //放入map保存
-		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre <= totallen);
-		 
-	
-	 raf = new RandomAccessFile(r_index_file, "r");                       //副词
-	 long totallen = raf.length();                                        //全文长度
-	 do
-	 {
-		 raf.seek(pre);                          //直接定位到正文
-		 inde = raf.readLine();                  //读取一行
-		 strs = inde.split(" ");                 //切词
-		 wor = strs[0];                          //取单词
-		 r_index.put(wor,inde);                  //放入map保存
-		 pre += inde.length()+2;                   //移到下一行的位置
-	 }while(pre <= totallen);
-		 
+	     pre = raf_1.length();                                           //定位????，有待验证
+		 raf = new RandomAccessFile(index_file[i], "r");                 //名词
+	     totallen = raf.length();                                        //全文长度
+	     do
+	     {
+		    raf.seek(pre);                          //直接定位到正文
+		    inde = raf.readLine();                  //读取一行
+		    strs = inde.split(" ");                 //切词
+		    wor = strs[0];                          //取单词
+		    index_map[i].put(wor,inde);                  //放入map保存
+		    pre += inde.length()+2;                   //移到下一行的位置,2是换行符
+	     }while(pre <= totallen);
+	 }
    }	 
-   
-  
-   
+      
 	
    public IndexEntry getIndex(String word,PartOfSpeech pos)   //根据单词 和词性 ，在map中查询 ，解析并返回有关索引的indexentry类
   {
 	 String index_line ;
 	 String[] strs;
-	 IndexEntry entry = new IndexEntry();
-	 
+		 
 	 switch(pos)
 	 {                                   //lemma pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...] 
 	  case NOUN :                        //abasement n 2 3 @ ~ + 2 1 14248927 00269679  
 		 index_line = n_index.get(word); //  0       1 2 3 4 5 6 7 8     9     10                 protected String lemma;
-		 strs = index_line.split(" ");          //切词                                                                    // protected PartOfSpeech pos;
-		 entry.lemma = word;                                                                              // protected int synset_cnt;
-		 entry.pos = pos;                                                                               //protected int p_cnt;
-		 entry.synset_cnt = strs[2];                                                                      //         protected String[] ptr_symbols;
-		 entry.p_cnt = strs[3];                                                                             //  protected int sense_cnt;
-		 entry.ptr_symbols = new String[strs[3]];                                            		 //protected int tagsense_cnt;
-		 for(int i = 0 ;i<strs[3];i++)                                              			                //protected int[] synset_offsets;
-		      entry.ptr_symbols[i] = strs[4+i];
-		 
-		 entry.tagsense_cnt = strs[5+strs[3]];
-		 
-		 entry.synset_offsets = new int[strs[2]];
-		 for(int i = 0 ;i < strs[2] ;i++)
-			 entry.synset_offsets[i] = strs[6+strs[3]+i];
-		 		 
-		 break;
-	  
-	  case  VERB:                                                                   // 动词abuse v 4 3 @ ~ + 4 2 02492450 00200244 00836339 00200587  
-		 index_line = v_index.get(word);   //      0    1 2 3 4 5 6 7 8 9           10     11          12   
-	     strs = index_line.split(" ");
-	     entry.lemma = word;
-	     entry.pos = pos;
-	     entry.synset_cnt = strs[2];
-	     entry.p_cnt = strs[3];
-	     entry.ptr_symbols = new String[strs[3]];
-	     for(int i = 0;i<strs[3];i++)
-	    	 entry.ptr_symbols[i] = strs[4+i];
-	     
-	     entry.tagsense_cnt = strs[5+strs[3]];
-	     entry.synset_offsets = new int[strs[2]];
-	     for(int i =0 ;i< strs[2];i++)
-	    	 entry.synset_offsets[i] = strs [6+strs[3]+i];
-		 
-	     
 		 break;
 		 
-	  case ADJ:                                                         
-	  	 index_line = a_index.get(word);                              
-	     strs = index_line.split(" ");
-	     entry.lemma = word;
-	     entry.pos = pos;
-	     entry.synset_cnt = strs[2];
-	     entry.p_cnt = strs[3];
-	     entry.ptr_symbols = new String[strs[3]];
-	     for(int i = 0;i<strs[3];i++)
-	        entry.ptr_symbols[i] = strs[4+i];
-	     
-	     entry.tagsense_cnt = strs[5+strs[3]];
-	     entry.synset_offsets = new int[strs[2]];
-	     for(int i =0 ;i< strs[2];i++)
-	        entry.synset_offsets[i] = strs [6+strs[3]+i];
-	      
-	   	 break;
+	  case VERB:
+		  index_line = v_index.get(word);
+		  break;
+	
+	  case ADJ:
+		  index_line = a_index.get(word);
+		  break;
+		  
+	  case ADV:
+		  index_line = r_index.get(word);
+		  break;
 		 
-	  case ADV:                                                         
-		  	 index_line = r_index.get(word);                              
-		     strs = index_line.split(" ");
-		     entry.lemma = word;
-		     entry.pos = pos;
-		     entry.synset_cnt = strs[2];
-		     entry.p_cnt = strs[3];
-		     entry.ptr_symbols = new String[strs[3]];
-		     for(int i = 0;i<strs[3];i++)
-		        entry.ptr_symbols[i] = strs[4+i];
-		     
-		     entry.tagsense_cnt = strs[5+strs[3]];
-		     entry.synset_offsets = new int[strs[2]];
-		     for(int i =0 ;i< strs[2];i++)
-		        entry.synset_offsets[i] = strs [6+strs[3]+i];
-		      
-		   	 break; 
-		
-		   	 
-	  case ADJS:                                                         
-		  	 index_line = a_index.get(word);                              
-		     strs = index_line.split(" ");
-		     entry.lemma = word;
-		     entry.pos = pos;
-		     entry.synset_cnt = strs[2];
-		     entry.p_cnt = strs[3];
-		     entry.ptr_symbols = new String[strs[3]];
-		     for(int i = 0;i<strs[3];i++)
-		        entry.ptr_symbols[i] = strs[4+i];
-		     
-		     entry.tagsense_cnt = strs[5+strs[3]];
-		     entry.synset_offsets = new int[strs[2]];
-		     for(int i =0 ;i< strs[2];i++)
-		        entry.synset_offsets[i] = strs [6+strs[3]+i];
-		      
-		   	 break; 
-	     
+	  case ADJS:
+		  index_line = a_index.get(word);
+		  break;
+		 
 	 }
+	     strs = index_line.split(" ");          //切词                                                                    // protected PartOfSpeech pos;
+		 //entry.lemma = word;                                                                              // protected int synset_cnt;
+		 //entry.pos = pos;                                                                               //protected int p_cnt;
+		 //entry.synset_cnt = strs[2];                                                                      //         protected String[] ptr_symbols;
+		 //entry.p_cnt = strs[3];                                                                             //  protected int sense_cnt;
+		 String ptr_sym[] = new String[Integer.parseInt(strs[3])];                                            		 //protected int tagsense_cnt;
+		 for(int i = 0 ;i<Integer.parseInt(strs[3]);i++)                                              			                //protected int[] synset_offsets;
+		      ptr_sym[i] = strs[4+i];
+		 //entry.tagsense_cnt = strs[5+strs[3]];
+		 
+		 int[] syn_offsets = new int[Integer.parseInt(strs[2])];
+		 for(int i = 0 ;i < Integer.parseInt(strs[2]) ;i++)
+			 syn_offsets[i] =Integer.parseInt(strs[6+Integer.parseInt(strs[3])+i]);
+		 		 
+		 IndexEntry entry = new IndexEntry(word,pos,strs[2],strs[3],ptr_sym,strs[5+strs[3]],syn_offsets);	 
+	     //IndexEntry(String lemma,PartOfSpeech pos,int synset_cnt,int p_cnt,String[] ptr_symbols,int tagsense_cnt,int[] synset_offsets)
 	 return entry;
   }
    
@@ -202,18 +111,19 @@ public DataManager                                                         //返
 	   Synset   syn = new Synset();                           //返回变量
 	   String[] strs;
 	   String  data;                                          //辅助拆词
-	   int add = offset|15;                                   //转换cache地址
+	   int add = offset%10000;                                   //转换cache地址
 	   int local,lenofgloss;
 	   switch(pos)
 	   {
 	   case NOUN: 
-		   if(n_cache[add]!=null)                            //????
+		   if(n_cache[add]!=null)                            
 		   {
+			   //
 			   return n_cache[add];
 		   }
 		   else
 		   {
-			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.noun");    //????
+			   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.noun");    //
 			   raf.seek(offset);                                                                      //定位
 			   data = raf.readLine();                                                                 //读行
 			   strs = data.split(" ");                                                                //拆词
@@ -224,16 +134,16 @@ public DataManager                                                         //返
 			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
 			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
 			                                                                                  
-			                                                                  // ????// protected int lex_id;数组????
+			                                                                  // // protected int lex_id;数组
 			   local = 4+2*syn.w_cnt;
 			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 			  
 			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
 			   for(int i = 0;i<syn.p_cnt ;i++)
 			   {
-				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
-				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
-				   syn.ptrs[i].pos = strs[local+3+i*4];
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
+ 				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);  //构造函数
+				   syn.ptrs[i].pos = strs[local+3+i*4];   // forstring
 				   syn.ptrs[i].source_target = strs[local+4+i*4];
 			   }
 			   
@@ -254,13 +164,13 @@ public DataManager                                                         //返
                
                
 	   case ADJ:
-		   if(a_cache[add]!=null)                            //????
+		   if(a_cache[add]!=null)                            //???? (a)mark的消去
 		   {
 			   return a_cache[add];
 		   }
 		   else
 		   {
-			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adj");    //????
+			   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.adj");    //
 			   raf.seek(offset);                                                                      //定位
 			   data = raf.readLine();                                                                 //读行
 			   strs = data.split(" ");                                                                //拆词
@@ -270,14 +180,14 @@ public DataManager                                                         //返
 			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
 			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
 			                                                                                  
-			                                                                  // ????// protected int lex_id;数组????
+			                                                                  // // protected int lex_id;数组
 			   local = 4+2*syn.w_cnt;
 			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 			  
 			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
 			   for(int i = 0;i<syn.p_cnt ;i++)
 			   {
-				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
 				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
 				   syn.ptrs[i].pos = strs[local+3+i*4];
 				   syn.ptrs[i].source_target = strs[local+4+i*4];
@@ -299,13 +209,13 @@ public DataManager                                                         //返
            break;
 		   
 	   case ADV:
-		   if(r_cache[add]!=null)                            //????
+		   if(r_cache[add]!=null)                            //
 		   {
 			   return r_cache[add];
 		   }
 		   else
 		   {
-			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adv");    //????
+			   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.adv");    //
 			   raf.seek(offset);                                                                      //定位
 			   data = raf.readLine();                                                                 //读行
 			   strs = data.split(" ");                                                                //拆词
@@ -315,14 +225,14 @@ public DataManager                                                         //返
 			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
 			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
 			                                                                                  
-			                                                                  // ????// protected int lex_id;数组????
+			                                                                  // // protected int lex_id;数组
 			   local = 4+2*syn.w_cnt;
 			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 			  
 			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
 			   for(int i = 0;i<syn.p_cnt ;i++)
 			   {
-				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
 				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
 				   syn.ptrs[i].pos = strs[local+3+i*4];
 				   syn.ptrs[i].source_target = strs[local+4+i*4];
@@ -345,13 +255,13 @@ public DataManager                                                         //返
 		   
 		   
 	   case ADJS:
-		   if(a_cache[add]!=null)                            //????
+		   if(a_cache[add]!=null)                            //
 		   {
 			   return a_cache[add];
 		   }
 		   else
 		   {
-			   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.adj");    //????
+			   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.adj");    //
 			   raf.seek(offset);                                                                      //定位
 			   data = raf.readLine();                                                                 //读行
 			   strs = data.split(" ");                                                                //拆词
@@ -361,14 +271,14 @@ public DataManager                                                         //返
 			   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
 			   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
 			                                                                                  
-			                                                                  // ????// protected int lex_id;数组????
+			                                                                  // // protected int lex_id;数组
 			   local = 4+2*syn.w_cnt;
 			   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 			  
 			   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
 			   for(int i = 0;i<syn.p_cnt ;i++)
 			   {
-				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+				   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
 				   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
 				   syn.ptrs[i].pos = strs[local+3+i*4];
 				   syn.ptrs[i].source_target = strs[local+4+i*4];
@@ -391,13 +301,13 @@ public DataManager                                                         //返
 		  
 		     
 		 case VERB:  //多了 frame  
-			 if(v_cache[add]!=null)                            //????
+			 if(v_cache[add]!=null)                            //
 			   {
 				   return v_cache[add];
 			   }
 			 else
 			 {
-				   RandomAccessFile raf_n = new RandomAccessFile("F:\\WordNet\\2.1\\dict\\data.verb");    //????
+				   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.verb");    //
 				   raf.seek(offset);                                                                      //定位
 				   data = raf.readLine();                                                                 //读行
 				   strs = data.split(" ");                                                                //拆词
@@ -409,14 +319,14 @@ public DataManager                                                         //返
 				   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
 				   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
 				                                                                                  
-				                                                                  // ????// protected int lex_id;数组????
+				                                                                  // // protected int lex_id;数组
 				   local = 4+2*syn.w_cnt;
 				   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 				  
 				   syn.ptrs = new SynsetPointer[syn.p_cnt];        // protected SynsetPointer[] ptrs;        
 				   for(int i = 0;i<syn.p_cnt ;i++)
 				   {
-					   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //????
+					   syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
 					   syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);
 					   syn.ptrs[i].pos = strs[local+3+i*4];
 					   syn.ptrs[i].source_target = strs[local+4+i*4];
@@ -440,17 +350,19 @@ public DataManager                                                         //返
 					   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
 				   }
                  
-			   v_cache[add] = new Synset(syn);                 //放入缓存	       
+			   v_cache[add] = syn;                 //放入缓存	       
 	   		   return syn;
 			 }
 	      break;				   
 	   }//switch
    }//public 
    
+   
+   
    public Synset[] lookup(String word, PartOfSpeech pos)      //返回单词对应词性的所有 synset
    {
 	   
-	   IndexEntry tmp = getIndex(word,pos);
+	   IndexEntry tmp = getIndex(word,pos);                     //???缺构造函数 
 	   Synset syn = new Synset[tmp.synset_cnt];
 	   for(int i =0 ;i < tmp.synset_cnt;i++)
 	   {
