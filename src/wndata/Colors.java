@@ -1,19 +1,25 @@
 package wndata;
+/*
+ * ColorStoreInfo是用来声明每个Color类有多少个颜色单位的接口
+ */
 interface ColorStoreInfo{
 	int STORENUM=5;
 }
-public class Color implements ColorStoreInfo{
+/*
+ * Colors类来存放多个Color
+ */
+public class Colors implements ColorStoreInfo{
 	private byte[] r;
 	private byte[] g;
 	private byte[] b;
 	private byte[] a;
-	private Color(){
+	private Colors(){
 		r=new byte[STORENUM];
 		g=new byte[STORENUM];
 		b=new byte[STORENUM];
 		a=new byte[STORENUM];
 	}
-	public Color(char[] data){
+	public Colors(char[] data){
 		this();
 		for (int i=0;i<STORENUM;++i){
 			r[i]=(byte)(data[i*2]&255);

@@ -447,7 +447,7 @@ public DataManager                                                         //返
 	   }//switch
    }//public 
    
-   public Synset[] lookup(String word, PartOfSpeech pos);      //返回单词对应词性的所有 synset
+   public Synset[] lookup(String word, PartOfSpeech pos)      //返回单词对应词性的所有 synset
    {
 	   
 	   IndexEntry tmp = getIndex(word,pos);
@@ -458,6 +458,14 @@ public DataManager                                                         //返
 	   }
 	   
 	   return syn;   
+   }
+   /**
+    * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
+    * By Zero，
+    */
+   public boolean setColor(Synset synset, String Word, Colors colors){
+   }
+   public Colors getColor(Synset synset, String word){
    }
 }
 
