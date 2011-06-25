@@ -377,9 +377,9 @@ public DataManager                                                         //用
     * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
     * By Zero，
     */
-   public boolean setColor(Synset synset, String Word, Colors colors){
+   public boolean setColor(Synset synset, Colors colors){
    }
-   public Colors getColor(Synset synset, String word){
+   public Colors getColor(Synset synset){
    }
 }
 
