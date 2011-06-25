@@ -1,4 +1,4 @@
-package color;
+package coloring;
 /*
  * Colors类来存放多个Color。
  */
