@@ -39,7 +39,14 @@ public enum PartOfSpeech {
         this.number = number;
         this.description = description;
     }
-
+    
+    public boolean equals(PartOfSpeech pos)
+    {
+    	if((this.symbol ==pos.symbol )&& (this.number == pos.number) && (this.description == pos.description))
+    		return true;
+    	else
+    		return false;
+    }
     /**
      * Return the character used to denote this PartOfSpeech in WordNet.
      */
