@@ -12,7 +12,7 @@ import java.io.RandomAccessFile;
  * files (readToken(), readNumber(), etc.), as well as the positioning
  * needed to seek around in data files.
  */
-public class WordNetFileReader {
+public class WordNetReader {
 
     /**
      * The RandomAccessFile underlying this WordNetFileReader.
@@ -23,7 +23,7 @@ public class WordNetFileReader {
      * Construct and return a new WordNetFileReader reading from the
      * given File.
      */
-    public WordNetFileReader(File file) throws FileNotFoundException {
+    public WordNetReader(File file) throws FileNotFoundException {
     this.file = new RandomAccessFile(file, "r");
     }
 
@@ -31,7 +31,7 @@ public class WordNetFileReader {
      * Construct and return a new WordNetFileReader reading from the
      * file with the given filename.
      */
-    public WordNetFileReader(String filename) throws FileNotFoundException {
+    public WordNetReader(String filename) throws FileNotFoundException {
     this.file = new RandomAccessFile(filename, "r");
     }
 
