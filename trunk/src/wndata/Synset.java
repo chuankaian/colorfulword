@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-//LZYNOTE:å®ƒåœ¨æ„é€ è¿™äº›ä¸œè¥¿çš„æ—¶å€™ç”¨çš„æ˜¯ä¸€ä¸ªreadæ–¹æ³•ä»å…¶å°è£…çš„WordNetFileReaderç±»ä¸­è¯»æ•°æ®ï¼Œä½ å¯ä»¥æŠŠè¿™ä¸ªWordNetFileReaderææ‡‚ï¼Œç”¨å®ƒçš„Readæ–¹æ³•ï¼Œæˆ–è€…è‡ªå·±å®ç°ä¸€ä¸ªè¯»æ•°æ®çš„é€»è¾‘ï¼Œå†å†™ä¸€ä¸ªæ„é€ å‡½æ•°ã€‚
+//LZYNOTE:ËüÔÚ¹¹ÔìÕâĞ©¶«Î÷µÄÊ±ºòÓÃµÄÊÇÒ»¸öread·½·¨´ÓÆä·â×°µÄWordNetFileReaderÀàÖĞ¶ÁÊı¾İ£¬Äã¿ÉÒÔ°ÑÕâ¸öWordNetFileReader¸ã¶®£¬ÓÃËüµÄRead·½·¨£¬»òÕß×Ô¼ºÊµÏÖÒ»¸ö¶ÁÊı¾İµÄÂß¼­£¬ÔÙĞ´Ò»¸ö¹¹Ôìº¯Êı¡£
 public class Synset {
 
     protected int offset;
