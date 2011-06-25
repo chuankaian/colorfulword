@@ -2,7 +2,7 @@
  * File: edu/cs/rochester/WordNet/wn/WordSense.java
  * Creator: George Ferguson
  * Created: Tue May 18 12:48:44 2010
- * Time-stamp: <2011-06-24 20:23:24 Friday by easyhard>
+ * Time-stamp: <Thu Jun  3 11:35:34 EDT 2010 ferguson>
  *
  * Copyright 2010 George Ferguson, ferguson@cs.rochester.edu.
  *
@@ -10,7 +10,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -51,28 +51,41 @@ public class WordSense {
      * Note: This field is not set by read().
      * @see setSenseKey
      */
+    public WordSense()
+    {
+    	
+    }
+    public WordSense(String word,int lex_id)
+    {
+    	this.word = word;
+    	this.lex_id = lex_id;
+    }
     protected String sense_key;
     /**
      * Note: This field is not set by read().
      * @see setSenseNum
      */
     protected int sense_num;
-
+   
+    
+    
+    
+    
     public String getWord() {
-    return word;
+	return word;
     }
     public int getLexId() {
-    return lex_id;
+	return lex_id;
     }
     public String getSenseKey() {
-    return sense_key;
+	return sense_key;
     }
     public int getSenseNumber() {
-    return sense_num;
+	return sense_num;
     }
 
     public String toString() {
-    return word + "." + lex_id;
+	return word + "." + lex_id;
     }
 
     /**
@@ -80,21 +93,21 @@ public class WordSense {
      * This is primarily for debugging.
      */
     public void dump(PrintWriter output) {
-    if (lex_id == 0) {
-        output.write(word);
-    } else {
-        output.write(word + "[" + lex_id + "]");
-    }
+	if (lex_id == 0) {
+	    output.write(word);
+	} else {
+	    output.write(word + "[" + lex_id + "]");
+	}
     }
 
     /**
      * Read and return the next WordSense from the input.
      */
     public static WordSense read(WordNetFileReader input) throws IOException {
-    WordSense ws = new WordSense();
-    ws.word = input.readToken();
-    ws.lex_id = input.readHexNumber();
-    return ws;
+	WordSense ws = new WordSense();
+	ws.word = input.readToken();
+	ws.lex_id = input.readHexNumber();
+	return ws;
     }
 
     /**
@@ -104,7 +117,7 @@ public class WordSense {
      * Note: package access only
      */
     void setSenseKey(String key) {
-    sense_key = key;
+	sense_key = key;
     }
 
     /**
@@ -114,6 +127,6 @@ public class WordSense {
      * Note: package access only
      */
     void setSenseNumber(int number) {
-    sense_num = number;
+	sense_num = number;
     }
 }

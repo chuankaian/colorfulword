@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-//LZYNOTE:它在构造这些东西的时候用的是一个read方法从其封装的WordNetFileReader类中读数据，你可以把这个WordNetFileReader搞懂，用它的Read方法，或者自己实现一个读数据的逻辑，再写一个构造函数。
+//LZYNOTE:瀹冨湪鏋勯�犺繖浜涗笢瑗跨殑鏃跺�欑敤鐨勬槸涓�涓猺ead鏂规硶浠庡叾灏佽鐨刉ordNetFileReader绫讳腑璇绘暟鎹紝浣犲彲浠ユ妸杩欎釜WordNetFileReader鎼炴噦锛岀敤瀹冪殑Read鏂规硶锛屾垨鑰呰嚜宸卞疄鐜颁竴涓鏁版嵁鐨勯�昏緫锛屽啀鍐欎竴涓瀯閫犲嚱鏁般��
 public class Synset {
 
     protected int offset;
@@ -19,7 +19,38 @@ public class Synset {
     protected SynsetPointer[] ptrs;
     protected SynsetFrame[] frames;
     protected String[] glosses;
-
+    
+    public Synset()
+    {
+    	
+    }
+    public Synset(int offset,int lex_filenum,PartOfSpeech ss_type,int w_cnt,WordSense[] words,int p_cnt,SynsetPointer[] ptrs,String[] glosses)
+    {
+    	this.offset = offset;
+    	this.lex_filenum = lex_filenum;
+    	this.ss_type = ss_type;
+    	this.w_cnt = w_cnt;
+    	this.words = words;
+    	this.p_cnt = p_cnt;
+    	this.ptrs = ptrs;
+    	this.glosses = glosses;
+    }
+    
+    public Synset(int offset,int lex_filenum,PartOfSpeech ss_type,int w_cnt,WordSense[] words,int p_cnt,SynsetPointer[] ptrs,SynsetFrame[] frames,String[] glosses)
+    {
+    	this.offset = offset;
+    	this.lex_filenum = lex_filenum;
+    	this.ss_type = ss_type;
+    	this.w_cnt = w_cnt;
+    	this.words = words;
+    	this.p_cnt = p_cnt;
+    	this.ptrs = ptrs;
+    	this.frames = frames;
+    	this.glosses = glosses;
+    }
+ 
+    
+    
     public int getOffset() {
         return offset;
     }

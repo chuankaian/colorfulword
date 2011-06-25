@@ -33,6 +33,18 @@ public class SynsetPointer {
     protected int synset_offset;
     protected PartOfSpeech pos;
     protected int source_target;
+    
+    SynsetPointer()
+    {
+    	
+    }
+    public SynsetPointer(PointerSymbol pointer_symbol,int synset_offset,PartOfSpeech pos,int source_target)
+    {
+    	this.pointer_symbol = pointer_symbol;
+    	this.synset_offset = synset_offset;
+    	this.pos = pos;
+    	this.source_target = source_target;
+    }
 
     public PointerSymbol getPointerSymbol() {
     return pointer_symbol;
