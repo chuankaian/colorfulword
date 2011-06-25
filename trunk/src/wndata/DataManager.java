@@ -1,6 +1,6 @@
 ﻿package wndata;
-import color.ColorStoreInfo;
-import color.Colors; 
+import coloring.ColorStoreInfo;
+import coloring.Colors; 
 
 /**
  * 这个类应该给全局的底层读写提供支持，最好能有机制保证整个程序中只有一个这个类的实例,这样只要读取一次索引文件,而且我们之前讨论的缓存机制能较好地发挥作用.
