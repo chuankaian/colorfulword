@@ -10,7 +10,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import java.util.*;
 import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
-
+import java.net.URL;
+import java.net.MalformedURLException;
 
 public class Browser extends JFrame implements ActionListener, HyperlinkListener, ItemListener {
     protected DataManager manager;
@@ -205,6 +206,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
      */
     public void hyperlinkUpdate(HyperlinkEvent event) {
         System.out.println(event.getEventType());
+        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            URL url = event.getURL();
+            query(url.getHost(),
+                  PartOfSpeech.forString(url.getProtocol()),
+                  url.getPort());
+            // String description = event.getDescription();
+            // search(description.substring(1));
+        }
     }
     /**
      * ItemListener method called when a checkbox menu item is changed.
@@ -491,8 +500,18 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         protected String prepareHTMLWordSense(Synset synset, WordSense ws) {
             String html = "";
             String w = ws.getWord();
-            html += "<a href=\"#" + w + "\">" + w;
-            content.append(html);
+            URL url;
+            try {
+                url = new URL(synset.getSSType().getDescription(),w,synset.getOffset(),"");
+                html += "<a href=" + url + ">" + w;
+                System.out.println("<a href=" + url + ">" + w);
+                content.append(html);
+            }
+            catch (MalformedURLException e) {
+                System.err.println("java.net.MalformedURLException");
+
+            }
+
             // if (prefs.getShowSenseNums()) {
             //     int num = ws.getSenseNumber();
             //     try {
