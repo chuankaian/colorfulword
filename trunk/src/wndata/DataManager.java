@@ -32,11 +32,18 @@ public class DataManager //implements ColorStoreInfo                            
 	  v_cache = new Synset[10000];                    //缓存
 	  a_cache = new Synset[10000];                    //缓存
 	  r_cache = new Synset[10000];                    //缓存
-	 
+	 /*
 	 File n_index_file = new File("../dict/index.noun");                //四个索引的相对路径
 	 File v_index_file = new File("../dict/index.verb");
 	 File a_index_file = new File("../dict/index.adj");
 	 File r_index_file = new File("../dict/index.adv");
+	 */
+	 File n_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.noun");                //四个索引的相对路径
+	 File v_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.verb");
+	 File a_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adj");
+	 File r_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adv");
+	 
+	 
 	 
 	  n_index = new HashMap<String,String>();                                     //四种单词建立 单词到对应index行的map
 	  v_index = new HashMap<String,String>();
@@ -437,8 +444,10 @@ public class DataManager //implements ColorStoreInfo                            
    
    public static void main(String[] args)
    {
+	 System.out.println("start");
 	//public IndexEntry getIndex(String word,PartOfSpeech pos)   
 	//IndexEntry t = new DataManager().getIndex("book", PartOfSpeech.forString("NOUN"));
+	//System.out.println(t.senseCount());
 	   // Synset[] t = new DataManager().lookup("book",PartOfSpeech.forChar('n'));   
    }
    /**
