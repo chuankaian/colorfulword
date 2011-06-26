@@ -2,7 +2,6 @@
 
 package wndata;
 
-import java.io.RandomAccessFile;
 import java.io.*;
 import java.util.*;
 import coloring.*;
@@ -243,23 +242,23 @@ public class DataManager //implements ColorStoreInfo                            
 	     switch(pos)
 	     {
 	        case NOUN:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.noun","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.noun"),"r");
 	        break;
 	        
 	        case VERB:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.verb","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.verb"),"r");
 	        break;
 	        
 	        case ADV:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adv","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.adv"),"r");
 	        break;
 	        
 	        case ADJ:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adj","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.adj"),"r");
 	        break;
 	        
 	        case ADJS:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adj","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.adj"),"r");
 	        break;
 	        default:
 	            
@@ -469,26 +468,79 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 
 	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 测试getindex   
-		/*IndexEntry t = new DataManager().getIndex("book", PartOfSpeech.forString("n"));
-		System.out.println(t.senseCount());
-		System.out.println(t.getLemma());
-		System.out.println(t.toString());
-		int [] s = t.getSynsetOffets();
-		String[] uv =t.getPtrSymbols();
+		IndexEntry t1 = new DataManager().getIndex("book", PartOfSpeech.forString("n"));
+		//System.out.println(t.senseCount());
+		//System.out.println(t.getLemma());
+		//System.out.println(t.toString());
+		int [] s = t1.getSynsetOffets();
+		String[] uv =t1.getPtrSymbols();
 		for(int i =0;i<s.length;i++)
 			System.out.println(s[i]);
 		
 		for(int i =0;i<uv.length;i++)
 		{
 		   System.out.println(uv[i]);	
-		}*/
+		}
 	 
+	 
+	 /*  test the second function
 	 Synset x = new DataManager().getSynset(779834,PartOfSpeech.forString("s"));
 	 Synset t = new DataManager().getSynset(6319490,PartOfSpeech.forString("n"));
-	 System.out.println(t.getOffset());
-	 System.out.println(t.getLexFilenum());
-	
-	    //Synset[] t = new DataManager().lookup("book",PartOfSpeech.forString("n"));   
+	 System.out.println(t.getOffset()+" "+x.getOffset());
+	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
+	*/
+	    Synset[] t = new DataManager().lookup("book",PartOfSpeech.forString("n"));   
+        for(int i =0;i<t.length;i++)
+        {
+        	System.out.println(t[i].getLexFilenum()+" "+t[i].getLexId()+" "+t[i].getOffset()+" "+t[i].getPtrCount()+" "+t[i].getWordCount());
+        	WordSense[] wo = t[i].getWords();
+        	for(int j =0;j<wo.length;j++)
+        	{
+        		System.out.println(wo[j].getWord()+" "+wo[j].getLexId());
+        	}
+        	String[] glo = t[i].getGlosses();
+        	for(int k =0;k<glo.length;k++)
+        	{
+        		System.out.print(glo[k]+" ");
+        		
+        	}
+        	System.out.println(".");
+        	System.out.println(" these are the glosses of the "+ i+ "th synset");
+        }
+   
+       /* public int getLexFilenum() {
+            return lex_filenum;
+        }
+        public PartOfSpeech getSSType() {
+            return ss_type;
+        }
+        public int getWordCount() {
+            return w_cnt;
+        }
+        public WordSense[] getWords() {
+            return words;
+        }
+        public int getLexId() {
+            return lex_id;
+        }
+        public int getPtrCount() {
+            return p_cnt;
+        }
+        public SynsetPointer[] getPointers() {
+            return ptrs;
+        }
+        public SynsetFrame[] getFrames() {
+            return frames;
+        }
+        public String[] getGlosses() {
+            return glosses;
+        }
+
+        public String toString() {
+            return "[" + ss_type + ", " +
+                "[" + Printing.printListToString(words, ",") + "]]";
+        }*/
+   
    }
    /**
     * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
