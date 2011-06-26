@@ -242,6 +242,20 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         outputText.setContentType("text/html");
         outputText.setEditable(false);
         outputText.addHyperlinkListener(this);
+        outputText.addKeyListener(new KeyAdapter() {
+                public void keyPressed(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shiftPressed = true;
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+                        ctrlPressed = true;
+                }
+                public void keyReleased(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shiftPressed = false;
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+                        ctrlPressed = false;
+                }
+            });
         JScrollPane scroller = new JScrollPane(outputText);
         scroller.setPreferredSize(new Dimension(640, 480));
         //centerPanel.add(scroller, BorderLayout.CENTER);
@@ -271,6 +285,9 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                         shiftPressed = false;
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = false;
+                }
+                public void keyType(KeyEvent e) {
+                    System.out.println("vivid");
                 }
             });
 
@@ -333,7 +350,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             System.out.println(ctrlPressed + " " + shiftPressed);
             if (ctrlPressed && !shiftPressed) {
                 java.awt.Color color = javax.swing.JColorChooser.showDialog(this,"Set Synset Color",null);
-                ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
+                if (color != null)
+                    ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
 
             }
             else if (!ctrlPressed && shiftPressed) {
@@ -568,25 +586,25 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 String label = headSynset.getSSType().getDescription();
                 label = label.substring(0,1).toUpperCase() + label.substring(1);
 
-                html += "<h1> Clicked Synset is " + label + "</h1>";
+                // html += "<h1> Clicked Synset is " + label + "</h1>";
                 content.append("<h1> Clicked Synset is " + label + "</h1>");
-                html += "<ol>";
+                // html += "<ol>";
                 content.append("<ol>");
-                html+= "<li>";
+                // html+= "<li>";
                 content.append("<li>");
                 prepareHTMLWordList(headSynset);
                 prepareHTMLGlosses(headSynset);
                 prepareHTMLSynsetPointers(headSynset);
-                html += "</li>";
+                // html += "</li>";
                 content.append("</li>");
-                html += "</ol>";
+                // html += "</ol>";
                 content.append("</ol>");
 
-                html += "<h1>All Synsets of \"" + queryWord + "\":</h1>";
+                // html += "<h1>All Synsets of \"" + queryWord + "\":</h1>";
                 content.append("<h1>Rest Synsets of \"" + queryWord + "\":</h1>");
             }
             else {
-                html += "<h1>Results for \"" + queryWord + "\":</h1>";
+                // html += "<h1>Results for \"" + queryWord + "\":</h1>";
                 content.append("<h1>Results for \"" + queryWord + "\":</h1>");
             }
 
@@ -595,12 +613,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 if (synsets != null && posFlags[i]) {
                     String label = ALL_POS[i].getDescription();
                     label = label.substring(0,1).toUpperCase() + label.substring(1) + "s";
-                    html += "<h2>" + label + "</h2>";
+                    // html += "<h2>" + label + "</h2>";
                     content.append("<h2>" + label + "</h2>");
-                    html += "<ol>";
+                    // html += "<ol>";
                     content.append("<ol>");
                     for (Synset synset : synsets) {
-                        html+= "<li>";
+                        // html+= "<li>";
                         content.append("<li>");
                         prepareHTMLWordList(synset);
                         // if (prefs.getShowDefinitions() || prefs.getShowExamples()) {
@@ -609,14 +627,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                         // if (prefs.getShowSemanticPointers() || prefs.getShowLexicalPointers()) {
                         prepareHTMLSynsetPointers(synset);
                         // }
-                        html += "</li>";
+                        // html += "</li>";
                         content.append("</li>");
                     }
-                    html += "</ol>";
+                    // html += "</ol>";
                     content.append("</ol>");
                 }
             }
-            html += "</body></html>";
+            // html += "</body></html>";
             content.append("</body></html>");
             return html;
         }
@@ -629,10 +647,11 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             WordSense[] words = synset.getWords();
             for (int i=0; i < words.length; i++) {
                 if (i > 0) {
-                    html += ", ";
+                    // html += ", ";
                     content.append(", ");
                 }
-                html += prepareHTMLWordSense(synset, words[i]);
+                // html += prepareHTMLWordSense(synset, words[i]);
+                prepareHTMLWordSense(synset, words[i]);
             }
             return html;
         }
@@ -652,9 +671,9 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 // url = new URL(synset.getSSType().getDescription(),w,synset.getOffset(),"nothing");
                 url = new URL("http",""+synset.getSSType().getSymbol()
                               ,synset.getOffset(),"/"+w);
-                html += "<a href=" + url + ">" + w;
+                // html += "<a href=" + url + ">" + w;
                 // System.out.println("<a href=" + url + ">" + w);
-                content.append(html);
+                content.append("<a href=" + url + ">" + w);
             }
             catch (MalformedURLException e) {
                 System.err.println("java.net.MalformedURLException");
@@ -679,7 +698,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             //     }
             //     html += " (" + key + ")";
             // }
-            html += "</a>";
+            // html += "</a>";
             content.append("</a>");
             return html;
         }
@@ -689,12 +708,13 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
          */
         protected String prepareHTMLGlosses(Synset synset) {
             String html = "";
-            html += "<blockquote>";
+            // html += "<blockquote>";
             content.append("<blockquote>");
             for (String gloss : synset.getGlosses()) {
-                html += prepareHTMLGloss(synset, gloss);
+                // html += prepareHTMLGloss(synset, gloss);
+                prepareHTMLGloss(synset, gloss);
             }
-            html += "</blockquote></li>";
+            // html += "</blockquote></li>";
             content.append("</blockquote></li>");
             return html;
         }
@@ -708,11 +728,11 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             for (String part : gloss_parts) {
                 if (part.startsWith("\"")) {
                     if (true/*prefs.getShowExamples()*/) {
-                        html += "<em>" + part + "</em><br/>";
+                        // html += "<em>" + part + "</em><br/>";
                         content.append("<em>" + part + "</em><br/>");
                     }
                 } else if (/*prefs.getShowDefinitions() */true ) {
-                    html += part + "<br/>";
+                    // html += part + "<br/>";
                     content.append(part + "<br/>");
                 }
             }
@@ -732,15 +752,16 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             String html = "";
             SynsetPointer[] ptrs = synset.getPointers();
             if (ptrs.length > 0) {
-                html += "<ul>";
+                // html += "<ul>";
                 content.append("<ul>");
                 if (true /*prefs.getShowSemanticPointers() */) {
                     for (SynsetPointer ptr : ptrs) {
                         if (ptrFlags[ptr.getPointerSymbol().ordinal()] && ptr.isSemantic()) {
-                            html += "<li>";
+                            // html += "<li>";
                             content.append("<li>");
-                            html += prepareHTMLSynsetPointer(synset, ptr);
-                            html += "</li>";
+                            // html += prepareHTMLSynsetPointer(synset, ptr);
+                            prepareHTMLSynsetPointer(synset, ptr);
+                            // html += "</li>";
                             content.append("</li>");
                         }
                     }
@@ -748,15 +769,16 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 if (true /*prefs.getShowLexicalPointers() */) {
                     for (SynsetPointer ptr : ptrs) {
                         if (ptrFlags[ptr.getPointerSymbol().ordinal()] && !ptr.isSemantic()) {
-                            html += "<li>";
+                            // html += "<li>";
                             content.append("<li>");
-                            html += prepareHTMLSynsetPointer(synset, ptr);
+                            // html += prepareHTMLSynsetPointer(synset, ptr);
+                            prepareHTMLSynsetPointer(synset, ptr);
                             content.append("</li>");
-                            html += "</li>";
+                            // html += "</li>";
                         }
                     }
                 }
-                html += "</ul>";
+                // html += "</ul>";
                 content.append("</ul>");
             }
             return html;
@@ -771,17 +793,20 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             // try {
             Synset ptr_synset = manager.getSynset(ptr.getSynsetOffset(),ptr.getPartOfSpeech());
             if (ptr.isSemantic()) {
-                html += ptr.getDescription() + ": ";
+                // html += ptr.getDescription() + ": ";
                 content.append(ptr.getDescription() + ": ");
-                html += prepareHTMLWordList(ptr_synset);
+                // html += prepareHTMLWordList(ptr_synset);
+                prepareHTMLWordList(ptr_synset);
             } else {
                 int source_target = ptr.getSourceTarget();
                 int source = (source_target & 0xff00) >> 8;
                 int target = source_target & 0x00ff;
-                html += prepareHTMLWordSense(synset, synset.getWords()[source-1]);
-                html += " " + ptr.getDescription() + " ";
+                // html += prepareHTMLWordSense(synset, synset.getWords()[source-1]);
+                prepareHTMLWordSense(synset, synset.getWords()[source-1]);
+                // html += " " + ptr.getDescription() + " ";
                 content.append(" " + ptr.getDescription() + " ");
-                html += prepareHTMLWordSense(ptr_synset, ptr_synset.getWords()[target-1]);
+                // html += prepareHTMLWordSense(ptr_synset, ptr_synset.getWords()[target-1]);
+                prepareHTMLWordSense(ptr_synset, ptr_synset.getWords()[target-1]);
             }
             // } catch (IOException ex) {
             //     html += ex.getMessage();
@@ -898,31 +923,32 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
 
-                    try {
-                        MetalLookAndFeel.setCurrentTheme(new OceanTheme());
-                        UIManager.setLookAndFeel(new MetalLookAndFeel());
-                    }
-                    // catch (ClassNotFoundException e) {
-                    //     System.err.println("Couldn't find class for specified look and feel");
-                    //     System.err.println("Did you include the L&F library in the class path?");
+                    // try {
+                    //     MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+                    //     UIManager.setLookAndFeel(new MetalLookAndFeel());
+                    // }
+                    // // catch (ClassNotFoundException e) {
+                    // //     System.err.println("Couldn't find class for specified look and feel");
+                    // //     System.err.println("Did you include the L&F library in the class path?");
+                    // //     System.err.println("Using the default look and feel.");
+                    // // }
+
+                    // catch (UnsupportedLookAndFeelException e) {
+                    //     System.err.println("Can't use the specified look and feel on this platform.");
                     //     System.err.println("Using the default look and feel.");
                     // }
 
-                    catch (UnsupportedLookAndFeelException e) {
-                        System.err.println("Can't use the specified look and feel on this platform.");
-                        System.err.println("Using the default look and feel.");
-                    }
-
-                    catch (Exception e) {
-                        System.err.println("Couldn't get specified look and feel for some reason.");
-                        System.err.println("Using the default look and feel.");
-                        e.printStackTrace();
-                    }
+                    // catch (Exception e) {
+                    //     System.err.println("Couldn't get specified look and feel for some reason.");
+                    //     System.err.println("Using the default look and feel.");
+                    //     e.printStackTrace();
+                    // }
 
 
-                    JFrame.setDefaultLookAndFeelDecorated(true);
+                    // JFrame.setDefaultLookAndFeelDecorated(true);
 
                     Browser b = new Browser();
+                    b.setTitle("Colorful Word v0.99");
                     b.setVisible(true);
                     // new Browser().setVisible(true);
                     // while (true)
@@ -932,168 +958,3 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 }
 
 
-/**
- * The default model for combo boxes.
- *
- * @version %I% %G%
- * @author Arnaud Weber
- * @author Tom Santos
- */
-
-class MyComboBoxModel extends AbstractListModel implements MutableComboBoxModel, Serializable {
-    Vector objects;
-    Object selectedObject;
-
-    /**
-     * Constructs an empty DefaultComboBoxModel object.
-     */
-    public MyComboBoxModel() {
-        objects = new Vector();
-    }
-
-    /**
-     * Constructs a DefaultComboBoxModel object initialized with
-     * an array of objects.
-     *
-     * @param items  an array of Object objects
-     */
-    public MyComboBoxModel(final Object items[]) {
-        objects = new Vector();
-        objects.ensureCapacity( items.length );
-
-        int i,c;
-        for ( i=0,c=items.length;i<c;i++ )
-            objects.addElement(items[i]);
-
-        if ( getSize() > 0 ) {
-            selectedObject = getElementAt( 0 );
-        }
-    }
-
-    /**
-     * Constructs a DefaultComboBoxModel object initialized with
-     * a vector.
-     *
-     * @param v  a Vector object ...
-     */
-    public MyComboBoxModel(Vector<?> v) {
-        objects = v;
-
-        if ( getSize() > 0 ) {
-            selectedObject = getElementAt( 0 );
-        }
-    }
-
-    // implements javax.swing.ComboBoxModel
-    /**
-     * Set the value of the selected item. The selected item may be null.
-     * <p>
-     * @param anObject The combo box value or null for no selection.
-     */
-    public void setSelectedItem(Object anObject) {
-        if ((selectedObject != null && !selectedObject.equals( anObject )) ||
-        selectedObject == null && anObject != null) {
-        selectedObject = anObject;
-        fireContentsChanged(this, -1, -1);
-        }
-    }
-
-    // implements javax.swing.ComboBoxModel
-    public Object getSelectedItem() {
-        return selectedObject;
-    }
-
-    // implements javax.swing.ListModel
-    public int getSize() {
-        return objects.size();
-    }
-
-    // implements javax.swing.ListModel
-    public Object getElementAt(int index) {
-        if ( index >= 0 && index < objects.size() )
-            return objects.elementAt(index);
-        else
-            return null;
-    }
-
-    /**
-     * Returns the index-position of the specified object in the list.
-     *
-     * @param anObject
-     * @return an int representing the index position, where 0 is
-     *         the first position
-     */
-    public int getIndexOf(Object anObject) {
-        return objects.indexOf(anObject);
-    }
-
-    // implements javax.swing.MutableComboBoxModel
-    public void addElement(Object anObject) {
-        objects.addElement(anObject);
-        fireIntervalAdded(this,objects.size()-1, objects.size()-1);
-        // if ( objects.size() == 1 && selectedObject == null && anObject != null ) {
-        //     setSelectedItem( anObject );
-           //}
-    }
-
-    // implements javax.swing.MutableComboBoxModel
-    public void insertElementAt(Object anObject,int index) {
-        objects.insertElementAt(anObject,index);
-        fireIntervalAdded(this, index, index);
-    }
-
-    // implements javax.swing.MutableComboBoxModel
-    public void removeElementAt(int index) {
-        if ( getElementAt( index ) == selectedObject ) {
-            if ( index == 0 ) {
-                setSelectedItem( getSize() == 1 ? null : getElementAt( index + 1 ) );
-            }
-            else {
-                setSelectedItem( getElementAt( index - 1 ) );
-            }
-        }
-
-        objects.removeElementAt(index);
-
-        fireIntervalRemoved(this, index, index);
-    }
-
-    // implements javax.swing.MutableComboBoxModel
-    public void removeElement(Object anObject) {
-        int index = objects.indexOf(anObject);
-        if ( index != -1 ) {
-            removeElementAt(index);
-        }
-    }
-
-    /**
-     * Empties the list.
-     */
-    public void removeAllElements() {
-        if ( objects.size() > 0 ) {
-            int firstIndex = 0;
-            int lastIndex = objects.size() - 1;
-            objects.removeAllElements();
-        selectedObject = null;
-            fireIntervalRemoved(this, firstIndex, lastIndex);
-        } else {
-        selectedObject = null;
-    }
-    }
-}
-
-
-
-// private class MyComboBoxModel extends DefaultComboBoxModel {
-//     public MyComboBoxModel(){
-//         super();
-//     }
-//     @Override
-//     public void addElement(Object anObject) {
-//         objects.addElement(anObject);
-//         fireIntervalAdded(this,objects.size()-1, objects.size()-1);
-//         // if ( objects.size() == 1 && selectedObject == null && anObject != null ) {
-//         //     setSelectedItem( anObject );
-//     }
-// }
-// }
