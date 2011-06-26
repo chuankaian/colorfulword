@@ -99,8 +99,8 @@ public class GraphExplorer extends JApplet {
     Map<Synset, Gnode> map;
     
     public static final int EDGE_LENGTH = 70;
-    public static final int HEIGHT = 600;
-    public static final int WIDTH = 600;
+    public static final int HEIGHT = 800;
+    public static final int WIDTH = 800;
     /**
      * create an instance of a simple graph with popup controls to
      * create a graph.
@@ -137,10 +137,11 @@ public class GraphExplorer extends JApplet {
 			        SynsetPointer[] sp=gnode.synset.getPointers();
 			        for (int i=0;i<sp.length;++i){
 			        	Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
-			        	if (map.get(synset_)==null)
+			        	if (map.get(synset_)==null){
 			        		map.put(synset_, new Gnode(synset_));
+				        	layout.setLocation(map.get(synset_), x + 0.5 * EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), y + 0.5*EDGE_LENGTH * Math.sin(Math.PI*2/sp.length*i));
+			        	}
 			        	graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),gnode,map.get(synset_));
-			        	layout.setLocation(map.get(synset_), x + 0.5 * EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), y + 0.5*EDGE_LENGTH * Math.sin(Math.PI*2/sp.length*i));
 			        }
 					layout.initialize();
 					relaxer.resume();
@@ -189,14 +190,15 @@ public class GraphExplorer extends JApplet {
         graph.addVertex(map.get(synset));
         System.out.println(map.get(synset).synset.toString());
         map.get(synset).extended=true;
-    	layout.setLocation(map.get(synset), HEIGHT/2, WIDTH/2);
+    	layout.setLocation(map.get(synset), 300, 300);
         SynsetPointer[] sp=synset.getPointers();
         for (int i=0;i<sp.length;++i){
         	Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
-        	if (map.get(synset_)==null)
+        	if (map.get(synset_)==null){
         		map.put(synset_, new Gnode(synset_));
+            	layout.setLocation(map.get(synset_), 300 + EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), 300+Math.sin(Math.PI*2/sp.length*i));
+        	}
         	graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),map.get(synset),map.get(synset_));
-        	layout.setLocation(map.get(synset_), HEIGHT/2 + EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), WIDTH/2+Math.sin(Math.PI*2/sp.length*i));
         }
         layout.initialize();        
         relaxer.resume();
