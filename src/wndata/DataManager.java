@@ -342,7 +342,7 @@ public class DataManager //implements ColorStoreInfo                            
 				   SynsetFrame[] frames =new SynsetFrame[lenofframes];
 				   for(int i =0 ;i< lenofframes ;i++)
 				   {                                        //            17                                  18
-					   frames[i] = new SynsetFrame(Integer.parseInt(strs[local+2+3*i]),Integer.parseInt(strs[local+3+3*i]));
+					   frames[i] = new SynsetFrame(Integer.parseInt(strs[local+2+3*i]),Integer.parseInt(strs[local+3+3*i],16));
 					   //syn.frames[i].f_num = Integer.parseInt(strs[local+2+2*i]);
 				       //syn.frames[i].w_num = Integer.parseInt(strs[local+3+2*i]);
 				   }
@@ -558,6 +558,6 @@ public class DataManager //implements ColorStoreInfo                            
 	   return new Colors();
    }
    
-   //初始化块读文件，hashcode和10个char，  setColor
+   //初始化块读文件，hashcode和10个char，组成map,  setColor，synset,hashcode，编辑10个char，getchar 是synset知道hashcode，再得到10个char. 最后还应写回map
 }
 
