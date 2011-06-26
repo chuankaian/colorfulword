@@ -1,11 +1,13 @@
-package mygraph;
+package graph;
 
 import wndata.Synset;
 
 public class Gnode{
 	public Synset synset;
+	public boolean extended;
 	public Gnode(Synset synset){
 		this.synset=synset;
+		extended=false;
 	}
 	public String toString(){
 		if (synset.getWordCount()==1)
