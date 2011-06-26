@@ -1,26 +1,58 @@
 package browser;
 
-import wndata.*;
+import java.beans.*;
+import java.util.*;
+import ch.rakudave.suggest.JSuggestField;
+import java.awt.*;
+import java.awt.event.*;
+import coloring.*;
+import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 
+import javax.swing.event.*;
+import javax.swing.plaf.*;
+import javax.swing.border.*;
+
+import javax.accessibility.*;
+
+
+import wndata.*;
+import mytrie.*;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.plaf.basic.BasicComboBoxEditor;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+
 import java.util.*;
 import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
+
 import java.net.URL;
 import java.net.MalformedURLException;
 
 public class Browser extends JFrame implements ActionListener, HyperlinkListener, ItemListener {
     protected DataManager manager;
-    protected JTextField queryInput,searchInput;
+    protected Trie trie;
+    protected JTextField queryInput;
+    protected JTextField searchInput;
+    // protected JSuggestField queryInput;
+    protected JComboBox comboBox;
     protected JTextPane outputText;
     protected JButton forward,backward;
     protected JCheckBox[] posCheckBoxes;
     protected JMenuBar menuBar;
     protected JMenu optionMenu;
+    protected boolean ctrlPressed;
+    protected boolean shiftPressed;
     // protected MenuButton optionButton;
     protected final PartOfSpeech[] ALL_POS = { PartOfSpeech.NOUN,
                                                PartOfSpeech.VERB,
@@ -32,9 +64,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected String lastQueryWord;
     protected Map<PartOfSpeech,Synset[]> lastMap;
     protected Queryer queryer;
+    protected AutoCompleter autoCompleter;
     protected Synset lastHeadSynset;
     protected LinkedList<WordAndSynset> historyLink;
     protected ListIterator<WordAndSynset> currPostion;
+    protected String lastAutoComplete;
+    protected boolean addingItem = false;
     protected class WordAndSynset {
         public String word;
         public PartOfSpeech pos;
@@ -51,6 +86,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
     public Browser() {
         manager = DataManager.getSingleton();
+        trie = DataManager.getTrie();
         historyLink = new LinkedList<WordAndSynset>();
         JPanel queryPanel = new JPanel();
         queryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -85,11 +121,69 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
         JLabel queryLabel = new JLabel("Query:");
         queryPanel.add(queryLabel);
-
-        queryInput = new JTextField(20);
+        // String[] a = {
+        //     "a","b"
+        // };
+        comboBox = new JComboBox();
+        comboBox.setPreferredSize(new Dimension(250,20));
+        comboBox.setUI(new BasicComboBoxUI() {
+                @Override
+                protected JButton createArrowButton() {
+                    return new JButton() {
+                        @Override
+                        public int getWidth() {
+                            return 0;
+                        }
+                    };
+                }
+            });
+        comboBox.setEditable(true);
+        comboBox.setEditor(new BasicComboBoxEditor() {
+                @Override
+                public void setItem(Object anObject) {
+                    synchronized(comboBox) {
+                        if (addingItem)
+                            return;
+                    }
+                    super.setItem(anObject);
+                }
+            });
+        queryInput = (JTextField) comboBox.getEditor().getEditorComponent();
+        // queryInput.setLe
+        // queryInput = new JSuggestField(this);
         queryInput.setActionCommand("Query");
         queryInput.addActionListener(this);
-        queryPanel.add(queryInput);
+        queryInput.setDocument((Document) new MyDocument());
+        // queryInput.getDocument().addDocumentListener(new DocumentListener() {
+        //         public void insertUpdate(DocumentEvent evt){
+        //             try {
+        //                 System.out.println("insert Update:"+evt.getDocument().getText(0,evt.getDocument().getLength()));
+        //                 synchronized(comboBox) {
+        //                     if (addingItem)
+        //                         return ;
+        //                 }
+        //                 if (!evt.getDocument().getText(0,evt.getDocument().getLength()).equals(lastAutoComplete))
+        //                     if (evt.getDocument().getLength() > 2)
+        //                         autoComplete(evt.getDocument().getText(0,evt.getDocument().getLength()));
+        //             }
+        //             catch (BadLocationException e) {
+
+        //             }
+        //         }
+        //         public void removeUpdate(DocumentEvent evt){
+        //             try {
+        //                 System.out.println("remove Update:"+evt.getDocument().getText(0,evt.getDocument().getLength()));
+        //                 // autoComplete(evt.getDocument().getText(0,evt.getDocument().getLength()));
+        //             }
+        //             catch (BadLocationException e) {
+
+        //             }
+        //         }
+        //         public void changedUpdate(DocumentEvent e) {
+
+        //         }
+        //     });
+        queryPanel.add(comboBox);
 
         JPanel toolsPanel = new JPanel();
         toolsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -163,6 +257,23 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         content.add(scroller);
 
         setContentPane(content);
+
+
+        addKeyListener(new KeyAdapter() {
+                public void keyPressed(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shiftPressed = true;
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+                        ctrlPressed = true;
+                }
+                public void keyReleased(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+                        shiftPressed = false;
+                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+                        ctrlPressed = false;
+                }
+            });
+
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -216,13 +327,26 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         System.out.println(event.getEventType());
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             URL url = event.getURL();
-            System.out.println(url.getFile().substring(1));
-            currPostion = null;
-            query(url.getFile().substring(1),
-                  PartOfSpeech.forString(url.getHost()),
-                  url.getPort());
-            // String description = event.getDescription();
-            // search(description.substring(1));
+            PartOfSpeech pos = PartOfSpeech.forString(url.getHost());
+            int synsetOffset = url.getPort();
+            String word = url.getFile().substring(1);
+            System.out.println(ctrlPressed + " " + shiftPressed);
+            if (ctrlPressed && !shiftPressed) {
+                java.awt.Color color = javax.swing.JColorChooser.showDialog(this,"Set Synset Color",null);
+                ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
+
+            }
+            else if (!ctrlPressed && shiftPressed) {
+
+            }
+            else {
+
+                currPostion = null;
+                // query(url.getFile().substring(1),
+                //       PartOfSpeech.forString(url.getHost()),
+                //       url.getPort());
+                query(word,pos,synsetOffset);
+            }
         }
     }
     /**
@@ -388,6 +512,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
         outputText.setText(contentHtml.getHtml());
         outputText.setCaretPosition(0);
+        comboBox.hidePopup();
     }
 
     public class HtmlPraser {
@@ -676,6 +801,99 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    class MyDocument extends PlainDocument {
+
+        public void insertString(int offs, String str, AttributeSet a) {
+            try {
+                super.insertString(offs,str,a);
+            } catch (BadLocationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            // System.out.println("insert " + str + " at " + offs);
+            try {
+                System.out.println("insertString: " +getText(0,getLength()));
+                autoComplete(getText(0,getLength()));
+            } catch (BadLocationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    protected void autoComplete(String word) {
+        System.out.println("autoComplte:"+word);
+        lastAutoComplete = word;
+        word = word.toLowerCase();
+        word = word.replace(" ","_");
+        comboBox.hidePopup();
+        if (word.length() == 0)
+            return ;
+        if (autoCompleter != null) {
+            autoCompleter.cancel(true);
+            autoCompleter = null;
+        }
+        autoCompleter = new AutoCompleter(word);
+        autoCompleter.execute();
+    }
+    protected class AutoCompleter extends SwingWorker<WordList,Void> {
+        protected String word;
+        public AutoCompleter(String word) {
+            this.word = word;
+        }
+
+
+        /**
+         * SwingWorker method invoked on a background thread to actually
+         * do the lookup using the Browser's WordNetManager.
+         */
+        public WordList doInBackground() {
+            System.out.println("doInBackground:"+word);
+            WordList result = trie.getWordList(word,15);
+
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+            return result;
+        }
+
+        /**
+         * SwingWorker method invoked on the event dispatching thread to
+         * display the results of the search.
+         */
+        public void done() {
+            try {
+                if (!isCancelled()) {
+                    synchronized(comboBox) {
+                        addingItem = true;
+                    }
+                    System.out.println(word + " is done");
+                    WordList result = get();
+                    int count = comboBox.getItemCount();
+                    // String[] label = new String[result.getSize()];
+                    for (int i = 0; i < result.getSize(); i++)
+                        comboBox.addItem(result.getWord(i).replace("_"," "));
+                    for (int i = 0; i < count; i++)
+                        comboBox.removeItemAt(0);
+                    comboBox.showPopup();
+                    synchronized(comboBox) {
+                        addingItem = false;
+                    }
+                }
+                else {
+                    System.out.println(word + "is canceled");
+                }
+            } catch (Exception ex) {
+                System.err.println("AutoCompleter.done: " + ex.getMessage());
+            }
+        }
+
+    }
+
     public static void main(String[] argv) {
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
@@ -712,3 +930,170 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 }});
     }
 }
+
+
+/**
+ * The default model for combo boxes.
+ *
+ * @version %I% %G%
+ * @author Arnaud Weber
+ * @author Tom Santos
+ */
+
+class MyComboBoxModel extends AbstractListModel implements MutableComboBoxModel, Serializable {
+    Vector objects;
+    Object selectedObject;
+
+    /**
+     * Constructs an empty DefaultComboBoxModel object.
+     */
+    public MyComboBoxModel() {
+        objects = new Vector();
+    }
+
+    /**
+     * Constructs a DefaultComboBoxModel object initialized with
+     * an array of objects.
+     *
+     * @param items  an array of Object objects
+     */
+    public MyComboBoxModel(final Object items[]) {
+        objects = new Vector();
+        objects.ensureCapacity( items.length );
+
+        int i,c;
+        for ( i=0,c=items.length;i<c;i++ )
+            objects.addElement(items[i]);
+
+        if ( getSize() > 0 ) {
+            selectedObject = getElementAt( 0 );
+        }
+    }
+
+    /**
+     * Constructs a DefaultComboBoxModel object initialized with
+     * a vector.
+     *
+     * @param v  a Vector object ...
+     */
+    public MyComboBoxModel(Vector<?> v) {
+        objects = v;
+
+        if ( getSize() > 0 ) {
+            selectedObject = getElementAt( 0 );
+        }
+    }
+
+    // implements javax.swing.ComboBoxModel
+    /**
+     * Set the value of the selected item. The selected item may be null.
+     * <p>
+     * @param anObject The combo box value or null for no selection.
+     */
+    public void setSelectedItem(Object anObject) {
+        if ((selectedObject != null && !selectedObject.equals( anObject )) ||
+        selectedObject == null && anObject != null) {
+        selectedObject = anObject;
+        fireContentsChanged(this, -1, -1);
+        }
+    }
+
+    // implements javax.swing.ComboBoxModel
+    public Object getSelectedItem() {
+        return selectedObject;
+    }
+
+    // implements javax.swing.ListModel
+    public int getSize() {
+        return objects.size();
+    }
+
+    // implements javax.swing.ListModel
+    public Object getElementAt(int index) {
+        if ( index >= 0 && index < objects.size() )
+            return objects.elementAt(index);
+        else
+            return null;
+    }
+
+    /**
+     * Returns the index-position of the specified object in the list.
+     *
+     * @param anObject
+     * @return an int representing the index position, where 0 is
+     *         the first position
+     */
+    public int getIndexOf(Object anObject) {
+        return objects.indexOf(anObject);
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void addElement(Object anObject) {
+        objects.addElement(anObject);
+        fireIntervalAdded(this,objects.size()-1, objects.size()-1);
+        // if ( objects.size() == 1 && selectedObject == null && anObject != null ) {
+        //     setSelectedItem( anObject );
+           //}
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void insertElementAt(Object anObject,int index) {
+        objects.insertElementAt(anObject,index);
+        fireIntervalAdded(this, index, index);
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void removeElementAt(int index) {
+        if ( getElementAt( index ) == selectedObject ) {
+            if ( index == 0 ) {
+                setSelectedItem( getSize() == 1 ? null : getElementAt( index + 1 ) );
+            }
+            else {
+                setSelectedItem( getElementAt( index - 1 ) );
+            }
+        }
+
+        objects.removeElementAt(index);
+
+        fireIntervalRemoved(this, index, index);
+    }
+
+    // implements javax.swing.MutableComboBoxModel
+    public void removeElement(Object anObject) {
+        int index = objects.indexOf(anObject);
+        if ( index != -1 ) {
+            removeElementAt(index);
+        }
+    }
+
+    /**
+     * Empties the list.
+     */
+    public void removeAllElements() {
+        if ( objects.size() > 0 ) {
+            int firstIndex = 0;
+            int lastIndex = objects.size() - 1;
+            objects.removeAllElements();
+        selectedObject = null;
+            fireIntervalRemoved(this, firstIndex, lastIndex);
+        } else {
+        selectedObject = null;
+    }
+    }
+}
+
+
+
+// private class MyComboBoxModel extends DefaultComboBoxModel {
+//     public MyComboBoxModel(){
+//         super();
+//     }
+//     @Override
+//     public void addElement(Object anObject) {
+//         objects.addElement(anObject);
+//         fireIntervalAdded(this,objects.size()-1, objects.size()-1);
+//         // if ( objects.size() == 1 && selectedObject == null && anObject != null ) {
+//         //     setSelectedItem( anObject );
+//     }
+// }
+// }
