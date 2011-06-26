@@ -6,14 +6,14 @@ import java.io.*;
 import java.util.*;
 import coloring.*;
 /**
- * 这个类应该给全局的底层读写提供支持，最好能有机制保证整个程序中只有一个这个类的实例,这样只要读取一次索引文件,而且我们之前讨论的缓存机制能较好地发挥作用.
- * 实现上我是这样考虑的.现在先不需要用复杂的数据结构去试图提高效率.可以在一开始就将所有的index文件中的条目读到内存中,用一个Map或者什么保存起来.查询的时候,直接在这个Map中取出相应的Index条目返回就可以了
- * 如果是要查Synset，你先看给出的Synset是不是在缓存里,是的话直接返回,不是的话可以用WordNetFileReader读出来.
+ * 杩欎釜绫诲簲璇ョ粰鍏ㄥ眬鐨勫簳灞傝鍐欐彁渚涙敮鎸侊紝鏈�ソ鑳芥湁鏈哄埗淇濊瘉鏁翠釜绋嬪簭涓彧鏈変竴涓繖涓被鐨勫疄渚�杩欐牱鍙璇诲彇涓�绱㈠紩鏂囦欢,鑰屼笖鎴戜滑涔嬪墠璁ㄨ鐨勭紦瀛樻満鍒惰兘杈冨ソ鍦板彂鎸ヤ綔鐢�
+ * 瀹炵幇涓婃垜鏄繖鏍疯�铏戠殑.鐜板湪鍏堜笉闇�鐢ㄥ鏉傜殑鏁版嵁缁撴瀯鍘昏瘯鍥炬彁楂樻晥鐜�鍙互鍦ㄤ竴寮�灏卞皢鎵�湁鐨刬ndex鏂囦欢涓殑鏉＄洰璇诲埌鍐呭瓨涓�鐢ㄤ竴涓狹ap鎴栬�浠�箞淇濆瓨璧锋潵.鏌ヨ鐨勬椂鍊�鐩存帴鍦ㄨ繖涓狹ap涓彇鍑虹浉搴旂殑Index鏉＄洰杩斿洖灏卞彲浠ヤ簡
+ * 濡傛灉鏄鏌ynset锛屼綘鍏堢湅缁欏嚭鐨凷ynset鏄笉鏄湪缂撳瓨閲�鏄殑璇濈洿鎺ヨ繑鍥�涓嶆槸鐨勮瘽鍙互鐢╓ordNetFileReader璇诲嚭鏉�
 **/
 
                                                              
 
-public class DataManager //implements ColorStoreInfo                                                        //  颜色,调错
+public class DataManager //implements ColorStoreInfo                                                        //  棰滆壊,璋冮敊
 {
    static Synset[] n_cache; 
    static Synset[] v_cache;
@@ -23,30 +23,37 @@ public class DataManager //implements ColorStoreInfo                            
                                  v_index,
                                  a_index,
                                  r_index;
- 
-   static                                                                  //初始化块，将index分类读入内存，以map形式存储
+   private static DataManager instance;
+   private DataManager(){}
+   public static DataManager getSingleton(){
+	if (instance==null){
+	 instance=new DataManager();
+	}
+	return instance;
+   }
+   static                                                                  //鍒濆鍖栧潡锛屽皢index鍒嗙被璇诲叆鍐呭瓨锛屼互map褰㈠紡瀛樺偍
    {
 	 
 	 RandomAccessFile raf; 
-	  n_cache = new Synset[10000];                    //缓存  
-	  v_cache = new Synset[10000];                    //缓存
-	  a_cache = new Synset[10000];                    //缓存
-	  r_cache = new Synset[10000];                    //缓存
+	  n_cache = new Synset[10000];                    //缂撳瓨  
+	  v_cache = new Synset[10000];                    //缂撳瓨
+	  a_cache = new Synset[10000];                    //缂撳瓨
+	  r_cache = new Synset[10000];                    //缂撳瓨
 	 
-	 File n_index_file = new File("./dict/index.noun");                //四个索引的相对路径
+	 File n_index_file = new File("./dict/index.noun");                //鍥涗釜绱㈠紩鐨勭浉瀵硅矾寰�
 	 File v_index_file = new File("./dict/index.verb");
 	 File a_index_file = new File("./dict/index.adj");
 	 File r_index_file = new File("./dict/index.adv");
 	 
 	 /*
-	 File n_index_file = new File("./dict/index.noun");                //四个索引的相对路径
+	 File n_index_file = new File("./dict/index.noun");                //鍥涗釜绱㈠紩鐨勭浉瀵硅矾寰�
 	 File v_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.verb");
 	 File a_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adj");
 	 File r_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adv");
 	 */
 	 
 	 
-	  n_index = new HashMap<String,String>();                                     //四种单词建立 单词到对应index行的map
+	  n_index = new HashMap<String,String>();                                     //鍥涚鍗曡瘝寤虹珛 鍗曡瘝鍒板搴攊ndex琛岀殑map
 	  v_index = new HashMap<String,String>();
 	  a_index = new HashMap<String,String>();
 	  r_index = new HashMap<String,String>();
@@ -54,14 +61,14 @@ public class DataManager //implements ColorStoreInfo                            
 	 /*File temp = new File("../dict/preindex.adj");
 	 try
 	 {
-	 RandomAccessFile raf_1 = new RandomAccessFile(temp,"r");                    //单独取出前面的说明编成文件
+	 RandomAccessFile raf_1 = new RandomAccessFile(temp,"r");                    //鍗曠嫭鍙栧嚭鍓嶉潰鐨勮鏄庣紪鎴愭枃浠�
 	 }catch(FileNotFoundException e)
 	 {
 			e.printStackTrace();
 	 }
-	 long pre ;*/                                        	                 //说明的长度换行符
-	 String wor,inde;                                                    //wor是单词，inde是该行索引，他们的对放入map                                                                  	
-	 String[] strs;                                                      //对每行index切词的数组
+	 long pre ;*/                                        	                 //璇存槑鐨勯暱搴︽崲琛岀
+	 String wor,inde;                                                    //wor鏄崟璇嶏紝inde鏄琛岀储寮曪紝浠栦滑鐨勫鏀惧叆map                                                                  	
+	 String[] strs;                                                      //瀵规瘡琛宨ndex鍒囪瘝鐨勬暟缁�
 	 //long totallen;
 	 
 	 File[] index_file ={n_index_file,v_index_file,a_index_file,r_index_file};
@@ -69,17 +76,17 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 /*for(int i =0 ;i<4;i++)
 	 {
-	     pre = raf_1.length();                                           //定位????，有待验证
-		 raf = new RandomAccessFile(index_file[i], "r");                 //名词
-	     totallen = raf.length();                                        //全文长度
+	     pre = raf_1.length();                                           //瀹氫綅????锛屾湁寰呴獙璇�
+		 raf = new RandomAccessFile(index_file[i], "r");                 //鍚嶈瘝
+	     totallen = raf.length();                                        //鍏ㄦ枃闀垮害
 	     do
 	     {
-		    raf.seek(pre);                          //直接定位到正文
-		    inde = raf.readLine();                  //读取一行
-		    strs = inde.split(" ");                 //切词
-		    wor = strs[0];                          //取单词
-		    index_map[i].put(wor,inde);                  //放入map保存
-		    pre += inde.length()+2;                   //移到下一行的位置,2是换行符
+		    raf.seek(pre);                          //鐩存帴瀹氫綅鍒版鏂�
+		    inde = raf.readLine();                  //璇诲彇涓�
+		    strs = inde.split(" ");                 //鍒囪瘝
+		    wor = strs[0];                          //鍙栧崟璇�
+		    index_map[i].put(wor,inde);                  //鏀惧叆map淇濆瓨
+		    pre += inde.length()+2;                   //绉诲埌涓嬩竴琛岀殑浣嶇疆,2鏄崲琛岀
 	     }while(pre <= totallen);
 	 }*/
 	
@@ -97,7 +104,7 @@ public class DataManager //implements ColorStoreInfo                            
 			 }
 			 
 		 }
-	 }*/  //装进map的第二个版本
+	 }*/  //瑁呰繘map鐨勭浜屼釜鐗堟湰
    try
    { //System.out.println("try");
 	 for(int i = 0;i < 4 ;i++)
@@ -110,20 +117,20 @@ public class DataManager //implements ColorStoreInfo                            
 		    inde = raf.readLine();
 		    
 		    
-		    if(inde==null)      //文件末尾 
+		    if(inde==null)      //鏂囦欢鏈熬 
 		       break;
 			     
 		    strs = inde.split(" ");
 		    wor = strs[0];
 		    //System.out.println(inde);
-		    if(wor.length()==0)        //跳过开头的说明
+		    if(wor.length()==0)        //璺宠繃寮�ご鐨勮鏄�
 		    {
 		    	//System.out.println("skip");
 		    	continue;
 		    }
 		    else
 		    {
-			 index_map[i].put(wor,inde);   //放入map
+			 index_map[i].put(wor,inde);   //鏀惧叆map
 		    }
 		    //System.out.println("true end");
 		}
@@ -142,7 +149,7 @@ public class DataManager //implements ColorStoreInfo                            
    
    
 	
-   public IndexEntry getIndex(String word,PartOfSpeech pos)   //根据单词 和词性 ，在map中查询 ，解析并返回有关索引的indexentry类
+   public IndexEntry getIndex(String word,PartOfSpeech pos)   //鏍规嵁鍗曡瘝 鍜岃瘝鎬�锛屽湪map涓煡璇�锛岃В鏋愬苟杩斿洖鏈夊叧绱㈠紩鐨刬ndexentry绫�
   {
 	 String index_line =null;
 	 String[] strs;
@@ -170,7 +177,7 @@ public class DataManager //implements ColorStoreInfo                            
 		  break;
 		 
 	 }
-	     strs = index_line.split(" ");          //切词                                                                    // protected PartOfSpeech pos;
+	     strs = index_line.split(" ");          //鍒囪瘝                                                                    // protected PartOfSpeech pos;
 		 //entry.lemma = word;                                                                              // protected int synset_cnt;
 		 //entry.pos = pos;                                                                               //protected int p_cnt;
 		 //entry.synset_cnt = strs[2];                                                                      //         protected String[] ptr_symbols;
@@ -191,15 +198,15 @@ public class DataManager //implements ColorStoreInfo                            
    
    
    
-   public Synset getSynset(int offset,PartOfSpeech pos)       //读取synset，  先进入缓存，有则直接返回，否则进入data，写缓存，赋值返回
+   public Synset getSynset(int offset,PartOfSpeech pos)       //璇诲彇synset锛� 鍏堣繘鍏ョ紦瀛橈紝鏈夊垯鐩存帴杩斿洖锛屽惁鍒欒繘鍏ata锛屽啓缂撳瓨锛岃祴鍊艰繑鍥�
    {
-	   Synset   syn = new Synset();                           //返回变量
+	   Synset   syn = new Synset();                           //杩斿洖鍙橀噺
 	   String[] strs;
-	   String  data = null;                                          //辅助拆词
-	   int add = offset%10000;                                   //转换cache地址
+	   String  data = null;                                          //杈呭姪鎷嗚瘝
+	   int add = offset%10000;                                   //杞崲cache鍦板潃
 	   int local,lenofgloss;
 	   //boolean judge_cache =false;
-	   switch(pos)                                                         //verb有frames
+	   switch(pos)                                                         //verb鏈塮rames
 	   {
 	     case NOUN: 
 		   if(n_cache[add]!=null && n_cache[add].getOffset() == offset && n_cache[add].getSSType().equals(pos))                            
@@ -263,7 +270,7 @@ public class DataManager //implements ColorStoreInfo                            
 	        default:
 	            
 	     }
-	      raf.seek(offset);                                                                      //定位
+	      raf.seek(offset);                                                                      //瀹氫綅
 		  data = raf.readLine();
 	     
 	     }catch(FileNotFoundException e)
@@ -275,20 +282,20 @@ public class DataManager //implements ColorStoreInfo                            
 				e.printStackTrace();
 		 }
 	     
-		                                                                  //读行
-		  strs = data.split(" ");                                                                //拆词
+		                                                                  //璇昏
+		  strs = data.split(" ");                                                                //鎷嗚瘝
           // synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss 
 		//    00072592        04          n        02        omission 1 skip 0             005   @ 00068933 n 0000   + 02588754 v 0202   + 00607944 v 0105 + 00607346 v 0103 ~ 00064448 n 0000 | a mistake resulting from neglect  			  
 		  //int offset = Integer.parseInt(strs[0]);                                // protected int offset;
 		  int lex_filenum = Integer.parseInt(strs[1]);                           // protected int lex_filenum;
 		  PartOfSpeech ss_type = PartOfSpeech.forString(strs[2]);                            // protected PartOfSpeech ss_type;
-		  int w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+		  int w_cnt = Integer.parseInt(strs[3], 16);       //16杩涘埗         // protected int w_cnt;
 			
 		  WordSense[] wordsen = new WordSense[w_cnt];
-		                                       		  // // protected int lex_id;数组
+		                                       		  // // protected int lex_id;鏁扮粍
 		  for(int i =0;i<w_cnt;i++)                                                        
 		  {
-			  if(strs[2]=="a"||strs[2]=="s")  //adj 和adjs要去掉marker
+			  if(strs[2]=="a"||strs[2]=="s")  //adj 鍜宎djs瑕佸幓鎺塵arker
 			  {
 				String worsen_tmp = strs[4+2*i];
 				int loc = worsen_tmp.lastIndexOf("(");
@@ -310,14 +317,14 @@ public class DataManager //implements ColorStoreInfo                            
 				   //PointerSymbol pointer_symbol,int synset_offset,PartOfSpeech pos,int source_target
 				   ptrs[i] = new SynsetPointer(PointerSymbol.forString(strs[local+1+i*4]),Integer.parseInt(strs[local+2+i*4]),PartOfSpeech.forString(strs[local+3+i*4]),Integer.parseInt(strs[local+4+i*4]));
 				   //syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
- 				   //syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);  //构造函数
+ 				   //syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);  //鏋勯�鍑芥暟
 				   //syn.ptrs[i].pos = strs[local+3+i*4];   // forstring
-				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //两组十六进制拼出来的????  SynsetPointer里面用int记录这两组数
+				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //涓ょ粍鍗佸叚杩涘埗鎷煎嚭鏉ョ殑????  SynsetPointer閲岄潰鐢╥nt璁板綍杩欎袱缁勬暟
 			   }
 			   
-			   if(pos.equals("VERB"))                                         //verb有frames 
+			   if(pos.equals("VERB"))                                         //verb鏈塮rames 
 			   {
-				   local += 4*p_cnt+1;    //定位到numofframes
+				   local += 4*p_cnt+1;    //瀹氫綅鍒皀umofframes
 				   int lenofframes = Integer.parseInt(strs[local]);
 				   SynsetFrame[] frames =new SynsetFrame[lenofframes];
 				   for(int i =0 ;i< lenofframes ;i++)
@@ -351,26 +358,26 @@ public class DataManager //implements ColorStoreInfo                            
 			      syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,glosses);
 	//public Synset(int offset,int lex_filenum,PartOfSpeech ss_type,int w_cnt,WordSense[] words,int p_cnt,SynsetPointer[] ptrs,SynsetFrame[] frames,String[] glosses)		   
 			   }
-			   switch(pos) //5个
+			   switch(pos) //5涓�
 			   {
 			     case NOUN:
-				    n_cache[add] = syn;                 //放入缓存
+				    n_cache[add] = syn;                 //鏀惧叆缂撳瓨
 			     break;
 			     
 			     case VERB:
-					    v_cache[add] = syn;                 //放入缓存
+					    v_cache[add] = syn;                 //鏀惧叆缂撳瓨
 				 break;
 			     
 			     case ADJ:
-					    a_cache[add] = syn;                 //放入缓存
+					    a_cache[add] = syn;                 //鏀惧叆缂撳瓨
 				 break;
 				 
 			     case ADV:
-					    r_cache[add] = syn;                 //放入缓存
+					    r_cache[add] = syn;                 //鏀惧叆缂撳瓨
 				 break;
 				 
 			     case ADJS:
-					    a_cache[add] = syn;                 //放入缓存
+					    a_cache[add] = syn;                 //鏀惧叆缂撳瓨
 				 break;
 			   }
         return syn;
@@ -378,7 +385,7 @@ public class DataManager //implements ColorStoreInfo                            
              
         /*       
 			     
-		 case VERB:  //多了 frame  
+		 case VERB:  //澶氫簡 frame  
 			 if(v_cache[add]!=null)                            //
 			   {
 				   return v_cache[add];
@@ -386,18 +393,18 @@ public class DataManager //implements ColorStoreInfo                            
 			 else
 			 {
 				   RandomAccessFile raf_n = new RandomAccessFile("../dict/data.verb");    //
-				   raf.seek(offset);                                                                      //定位
-				   data = raf.readLine();                                                                 //读行
-				   strs = data.split(" ");                                                                //拆词
+				   raf.seek(offset);                                                                      //瀹氫綅
+				   data = raf.readLine();                                                                 //璇昏
+				   strs = data.split(" ");                                                                //鎷嗚瘝
 	         	//synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss 
 			   //00003826 29                   v        02        hiccup 0 hiccough 0          003    @ 00001740 v 0000 + 14168180 n 0202 + 14168180 n 0101    01 + 02 00 | breathe spasmodically,                             
 				   
 				   syn.offset = strs[0];                                // protected int offset;
 				   syn.lex_filenum = strs[1];                           // protected int lex_filenum;
 				   syn.ss_type = strs[2];                            // protected PartOfSpeech ss_type;
-				   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16进制         // protected int w_cnt;
+				   syn.w_cnt = Integer.parseInt(strs[3], 16);       //16杩涘埗         // protected int w_cnt;
 				                                                                                  
-				                                                                  // // protected int lex_id;数组
+				                                                                  // // protected int lex_id;鏁扮粍
 				   local = 4+2*syn.w_cnt;
 				   syn.p_cnt = Integer.parseInt(strs[local]);               // protected int p_cnt;
 				  
@@ -411,7 +418,7 @@ public class DataManager //implements ColorStoreInfo                            
 				   }
 				   
 				                                       // protected SynsetFrame[] frames;
-				   local += 4*syn.p_cnt+1;    //定位到numofframes
+				   local += 4*syn.p_cnt+1;    //瀹氫綅鍒皀umofframes
 				   int lenofframes = Integer.parseInt(strs[local]);
 				   syn.frames =new SynsetFrame[lenofframes];
 				   for(int i =0 ;i< lenofframes ;i++)
@@ -428,7 +435,7 @@ public class DataManager //implements ColorStoreInfo                            
 					   syn.glosses[i] = strs[local+syn.p_cnt*4+1+i];
 				   }
                  
-			   v_cache[add] = syn;                 //放入缓存	       
+			   v_cache[add] = syn;                 //鏀惧叆缂撳瓨	       
 	   		   return syn;
 			 }
 	      break;				   
@@ -438,10 +445,10 @@ public class DataManager //implements ColorStoreInfo                            
    
    
    
-   public Synset[] lookup(String word, PartOfSpeech pos)      //返回单词对应词性的所有 synset
+   public Synset[] lookup(String word, PartOfSpeech pos)      //杩斿洖鍗曡瘝瀵瑰簲璇嶆�鐨勬墍鏈�synset
    {
 	   
-	   IndexEntry tmp = getIndex(word,pos);     //???缺构造函数 
+	   IndexEntry tmp = getIndex(word,pos);     //???缂烘瀯閫犲嚱鏁�
 	   int[] offsets = tmp.getSynsetOffets();
 	   Synset[] syn = new Synset[tmp.getSynsetCount()];
 	   for(int i =0 ;i < tmp.getSynsetCount();i++)
@@ -467,8 +474,8 @@ public class DataManager //implements ColorStoreInfo                            
 	 }*/
 	 
 	 
-	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 测试getindex   
-		IndexEntry t1 = new DataManager().getIndex("frozen_orange_juice", PartOfSpeech.forString("n"));
+	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 娴嬭瘯getindex   
+		IndexEntry t1 = DataManager.getSingleton().getIndex("frozen_orange_juice", PartOfSpeech.forString("n"));
 		//System.out.println(t.senseCount());
 		//System.out.println(t.getLemma());
 		//System.out.println(t.toString());
@@ -489,7 +496,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 System.out.println(t.getOffset()+" "+x.getOffset());
 	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
 	*/
-	    Synset[] t = new DataManager().lookup("frozen_orange_juice",PartOfSpeech.forString("n"));   
+	    Synset[] t = DataManager.getSingleton().lookup("frozen_orange_juice",PartOfSpeech.forString("n"));   
         
 		
 		for(int i =0;i<t.length;i++)
@@ -545,8 +552,8 @@ public class DataManager //implements ColorStoreInfo                            
    
    }
    /**
-    * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
-    * By Zero，
+    * 浠ヤ笅鏄柊鍔犲叆鐨凜olor鐩稿叧鐨勮鍐欐搷浣滐紝鍒嗗埆鏄疌olor鐨勫啓鍏ュ拰璇诲嚭鎿嶄綔锛孋olor绫荤殑澹版槑璇﹁Color銆俲ava
+    * By Zero锛�
     */
    public boolean setColor(Synset synset, Colors colors){
 	   return true;
