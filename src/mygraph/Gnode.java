@@ -3,16 +3,19 @@ package mygraph;
 import wndata.Synset;
 
 public class Gnode{
-	public boolean focus;
 	public Synset synset;
 	public Gnode(Synset synset){
-		this.focus=false;
 		this.synset=synset;
 	}
 	public String toString(){
-		if (focus)
-			return synset.toString();
+		if (synset.getWordCount()==1)
+			return "<html><center>"+synset.getWords()[0].getWord();
+		else if (synset.getWordCount()==2)
+			return "<html><center>"+synset.getWords()[0].getWord()
+					+"<p>"+synset.getWords()[1].getWord();
 		else
-			return synset.getWords()[0].getWord();
+			return "<html><center>"+synset.getWords()[0].getWord()
+					+"<p>"+synset.getWords()[1].getWord()
+					+"<p>"+synset.getWords()[2].getWord();
 	}
 }
