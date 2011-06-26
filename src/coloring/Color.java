@@ -11,6 +11,12 @@ public class Color {
 		this.b=(char)(b*255+0.5);
 		this.a=(char)(a*255+0.5);
 	}
+	Color(int r,int g,int b,int a){
+		this.r=(char)r;
+		this.g=(char)g;
+		this.b=(char)b;
+		this.a=(char)a;
+	}
 	public void setR(char r){
 		this.r=r;
 	}
