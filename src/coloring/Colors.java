@@ -16,10 +16,10 @@ public class Colors implements ColorStoreInfo{
 	public Colors(char[] data){
 		this();
 		for (int i=0;i<STORENUM;++i){
-			this.data[i].setR((byte)(data[i*2]&255));
-			this.data[i].setG((byte)(data[i*2]>>8));
-			this.data[i].setB((byte)(data[i*2+1]&255));
-			this.data[i].setA((byte)(data[i*2+1]>>8));
+			this.data[i].setR((char)(data[i*2]&255));
+			this.data[i].setG((char)(data[i*2]>>8));
+			this.data[i].setB((char)(data[i*2+1]&255));
+			this.data[i].setA((char)(data[i*2+1]>>8));
 		}
 	}
 	/*
@@ -33,28 +33,50 @@ public class Colors implements ColorStoreInfo{
 		}
 		return res;
 	}
-	public void setR(int index,byte r){
+	public void addColor(Color color){
+		for (int i=0;i<STORENUM;++i)
+			if (data[i].getA()==0){
+				data[i]=color;
+				return;
+			}
+		int j=0,k=-1;
+		for (int i=1;i<STORENUM;++i)
+			if (data[i].getA()>data[j].getA()){
+				k=j;j=i;
+			}else if (k==-1 || data[i].getA()>data[k].getA())
+				k=i;
+		char tot=(char) (data[j].getA()+data[k].getA());
+		data[j].setR((char) (data[j].getR()*data[j].getA()/tot+data[k].getR()*data[k].getA()/tot));
+		data[j].setG((char) (data[j].getG()*data[j].getA()/tot+data[k].getG()*data[k].getA()/tot));
+		data[j].setB((char) (data[j].getB()*data[j].getA()/tot+data[k].getB()*data[k].getA()/tot));
+		data[j].setA(tot);
+		if (tot>255)
+			for (int i=0;i<STORENUM;++i)
+				data[i].setA((char) (data[i].getA()>>1));
+		data[k]=color;
+	}
+	public void setR(int index,char r){
 		data[index].setR(r);
 	}
-	public void setG(int index,byte g){
+	public void setG(int index,char g){
 		data[index].setG(g);
 	}
-	public void setB(int index,byte b){
+	public void setB(int index,char b){
 		data[index].setB(b);
 	}
-	public void setA(int index,byte a){
+	public void setA(int index,char a){
 		data[index].setA(a);
 	}
-	public byte getR(int index){
+	public char getR(int index){
 		return data[index].getR();
 	}
-	public byte getG(int index){
+	public char getG(int index){
 		return data[index].getG();
 	}
-	public byte getB(int index){
+	public char getB(int index){
 		return data[index].getB();
 	}
-	public byte getA(int index){
+	public char getA(int index){
 		return data[index].getA();
 	}
 }

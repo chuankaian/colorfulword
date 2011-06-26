@@ -5,14 +5,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-//LZYNOTE:它在构�1�7�这些东西的时�1�7�用的是丄1�7个read方法从其封装的WordNetFileReader类中读数据，你可以把这个WordNetFileReader搞懂，用它的Read方法，或者自己实现一个读数据的�1�7�辑，再写一个构造函数�1�7�1�7
+//LZYNOTE:瀹冨湪鏋勯��犺繖浜涗笢瑗跨殑鏃跺��欑敤鐨勬槸涓��涓猺ead鏂规硶浠庡叾灏佽鐨刉ordNetFileReader绫讳腑璇绘暟鎹紝浣犲彲浠ユ妸杩欎釜WordNetFileReader鎼炴噦锛岀敤瀹冪殑Read鏂规硶锛屾垨鑰呰嚜宸卞疄鐜颁竴涓鏁版嵁鐨勯��昏緫锛屽啀鍐欎竴涓瀯閫犲嚱鏁般����
 public class Synset {
 
     protected int offset;
     protected int lex_filenum;
     protected PartOfSpeech ss_type;
     protected int w_cnt;
-    //LZYNOTE:这个WordSense我们是不是可以不要？
+    //LZYNOTE:杩欎釜WordSense鎴戜滑鏄笉鏄彲浠ヤ笉瑕侊紵
     protected WordSense[] words;
     protected int lex_id;
     protected int p_cnt;
@@ -197,5 +197,14 @@ public class Synset {
         }
         return sense_key;
     }
-
+    public int hashCode(){
+    	return (offset<<3)+ss_type.number;
+    }
+    public boolean equals(Object arg0){
+    	if (arg0 instanceof Synset)
+    		return this.offset==((Synset) arg0).offset
+    			&& this.ss_type.number==((Synset) arg0).ss_type.number;
+    	else
+    		return false;
+    }
 }
