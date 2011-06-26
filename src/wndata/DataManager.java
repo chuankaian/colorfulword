@@ -5,7 +5,7 @@ package wndata;
 import java.io.RandomAccessFile;
 import java.io.*;
 import java.util.*;
-//import coloring.*;
+import coloring.*;
 /**
  * 这个类应该给全局的底层读写提供支持，最好能有机制保证整个程序中只有一个这个类的实例,这样只要读取一次索引文件,而且我们之前讨论的缓存机制能较好地发挥作用.
  * 实现上我是这样考虑的.现在先不需要用复杂的数据结构去试图提高效率.可以在一开始就将所有的index文件中的条目读到内存中,用一个Map或者什么保存起来.查询的时候,直接在这个Map中取出相应的Index条目返回就可以了
@@ -188,7 +188,7 @@ public class DataManager //implements ColorStoreInfo                            
 	   String  data = null;                                          //辅助拆词
 	   int add = offset%10000;                                   //转换cache地址
 	   int local,lenofgloss;
-	   boolean judge_cache =false;
+	   //boolean judge_cache =false;
 	   switch(pos)                                                         //verb有frames
 	   {
 	     case NOUN: 
@@ -453,10 +453,12 @@ public class DataManager //implements ColorStoreInfo                            
    /**
     * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
     * By Zero，
-    
+    */
    public boolean setColor(Synset synset, Colors colors){
+	   return true;
    }
    public Colors getColor(Synset synset){
-   }*/
+	   return new Colors();
+   }
 }
 
