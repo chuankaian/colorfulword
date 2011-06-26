@@ -1,43 +1,61 @@
 package browser;
 
-import java.beans.*;
-import java.util.*;
-import ch.rakudave.suggest.JSuggestField;
-import java.awt.*;
-import java.awt.event.*;
-import coloring.*;
-import java.io.Serializable;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
+import graph.GraphExplorer;
 
-import javax.swing.event.*;
-import javax.swing.plaf.*;
-import javax.swing.border.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Map;
 
-import javax.accessibility.*;
-
-
-import wndata.*;
-import mytrie.*;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import javax.swing.event.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxUI;
-
-import java.util.*;
-import javax.swing.plaf.metal.OceanTheme;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
-import java.net.URL;
-import java.net.MalformedURLException;
+import mytrie.Trie;
+import mytrie.WordList;
+import wndata.DataManager;
+import wndata.PartOfSpeech;
+import wndata.PointerSymbol;
+import wndata.Synset;
+import wndata.SynsetPointer;
+import wndata.WordSense;
+import coloring.ColorManager;
 
 public class Browser extends JFrame implements ActionListener, HyperlinkListener, ItemListener {
     protected DataManager manager;
@@ -49,6 +67,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected JTextPane outputText;
     protected JButton forward,backward;
     protected JCheckBox[] posCheckBoxes;
+    protected JCheckBox synsetColorCheckBox;
     protected JMenuBar menuBar;
     protected JMenu optionMenu;
     protected boolean ctrlPressed;
@@ -127,6 +146,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         comboBox = new JComboBox();
         comboBox.setPreferredSize(new Dimension(250,20));
         comboBox.setUI(new BasicComboBoxUI() {
+                @SuppressWarnings("serial")
                 @Override
                 protected JButton createArrowButton() {
                     return new JButton() {
@@ -198,8 +218,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                     }
                 });
             toolsPanel.add(posCheckBoxes[i]);
-
         }
+        synsetColorCheckBox = new JCheckBox("Show Synset Color");
+        synsetColorCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    redisplay();
+                }
+            });
+        toolsPanel.add(synsetColorCheckBox);
 
         optionMenu = new JMenu("Option");
         // JMenuItem menuItem = new JMenuItem("Select All");
@@ -286,9 +312,6 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = false;
                 }
-                public void keyType(KeyEvent e) {
-                    System.out.println("vivid");
-                }
             });
 
         pack();
@@ -350,12 +373,20 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             System.out.println(ctrlPressed + " " + shiftPressed);
             if (ctrlPressed && !shiftPressed) {
                 java.awt.Color color = javax.swing.JColorChooser.showDialog(this,"Set Synset Color",null);
-                if (color != null)
+                if (color != null) {
                     ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
+                    		if (synsetColorCheckBox.isSelected())
+                    			redisplay();
+                	}
+                
 
             }
             else if (!ctrlPressed && shiftPressed) {
-
+                JDialog graphDialog = new JDialog(this,"Graphviz", true) ;
+                GraphExplorer synsetGraph = new GraphExplorer(manager.getSynset(synsetOffset,pos));
+                graphDialog.getContentPane().add(synsetGraph);
+                graphDialog.pack();
+                graphDialog.setVisible(true);
             }
             else {
 
@@ -385,6 +416,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         if (lastQueryWord != null && lastMap != null) {
             HtmlPraser content = new HtmlPraser(lastQueryWord,lastMap,lastHeadSynset);
             outputText.setText(content.getHtml());
+            outputText.setCaretPosition(0);
         }
     }
 
@@ -489,6 +521,10 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                     result = get();
                     Map<PartOfSpeech,Synset[]> map = (Map<PartOfSpeech,Synset[]>) result[0];
                     HtmlPraser contentHtml = (HtmlPraser) result[1];
+                    if (pos != null) {
+                        lastHeadSynset = manager.getSynset(synsetOffset,pos);
+                    }
+                    else lastHeadSynset = null;
                         // System.out.println(contentHtml.getHtml());
                     if (map != null) {
                         queryDone(queryWord, map, contentHtml);
@@ -621,6 +657,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                         // html+= "<li>";
                         content.append("<li>");
                         prepareHTMLWordList(synset);
+                        if (synsetColorCheckBox.isSelected())
+                            prepareSynsetColor(synset);
                         // if (prefs.getShowDefinitions() || prefs.getShowExamples()) {
                         prepareHTMLGlosses(synset);
                         // }
@@ -637,6 +675,15 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             // html += "</body></html>";
             content.append("</body></html>");
             return html;
+        }
+
+        protected void prepareSynsetColor(Synset synset) {
+            coloring.Color color = ColorManager.getSingleton().getColor(synset);
+            String s = "<a>              </a>Color:<a style=\"background-color:rgb(" + color.getR()+","
+            +color.getG()+","+color.getB()+")\">               "+"</a>";
+            s = s.trim();
+            System.out.println(s);
+            content.append(s);
         }
 
         /**
@@ -668,12 +715,17 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             String w = ws.getWord();
             URL url;
             try {
+
                 // url = new URL(synset.getSSType().getDescription(),w,synset.getOffset(),"nothing");
                 url = new URL("http",""+synset.getSSType().getSymbol()
                               ,synset.getOffset(),"/"+w);
                 // html += "<a href=" + url + ">" + w;
                 // System.out.println("<a href=" + url + ">" + w);
-                content.append("<a href=" + url + ">" + w);
+                content.append("<a ");
+                if (synsetColorCheckBox.isSelected()) {
+
+                }
+                content.append("href=" + url + ">" + w);
             }
             catch (MalformedURLException e) {
                 System.err.println("java.net.MalformedURLException");
@@ -726,6 +778,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             String html = "";
             String[] gloss_parts = gloss.split(";");
             for (String part : gloss_parts) {
+                part = part.trim();
                 if (part.startsWith("\"")) {
                     if (true/*prefs.getShowExamples()*/) {
                         // html += "<em>" + part + "</em><br/>";
@@ -826,6 +879,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    @SuppressWarnings("serial")
     class MyDocument extends PlainDocument {
 
         public void insertString(int offs, String str, AttributeSet a) {
