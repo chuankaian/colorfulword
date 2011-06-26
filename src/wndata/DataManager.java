@@ -14,7 +14,7 @@ import mytrie.*;
 
                                                              
 
-public class DataManager //implements ColorStoreInfo                                                        //  棰滆壊,璋冮敊
+public class DataManager implements ColorStoreInfo                                                        //  棰滆壊,璋冮敊
 {
 	static Trie trie;
    static Synset[] n_cache; 
@@ -26,7 +26,7 @@ public class DataManager //implements ColorStoreInfo                            
                                  a_index,
                                  r_index;
    
-    static HashMap<Integer,char[]> color_map;                    //????
+    static HashMap<Integer,byte[]> color_map;                    //????
    
    private static DataManager instance;
    private DataManager(){}
@@ -151,16 +151,23 @@ public class DataManager //implements ColorStoreInfo                            
 		e.printStackTrace();
      }
 	                                                             //????
-     color_map = new HashMap<Integer,char[]>();
+     color_map = new HashMap<Integer,byte[]>();
      try
      {
-       FileReader fr = new FileReader("store_color.txt");
-       char[] cbuf = new char[10];
+       FileInputStream fis = new FileInputStream("store_color.txt");
+       byte[] cbuf = new byte[STORENUM*4];
        int hash_code;
-       while((hash_code=fr.read())!=-1)
-       {
-    	   fr.skip(1);
-    	   fr.read(cbuf,0,10);
+       while(true){
+    	   hash_code=0;
+    	   int i=fis.read();
+    	   if (i==-1)
+    		   break;
+    	   hash_code=i-'0';
+    	   while ((i=fis.read())!=' '){
+    		   hash_code=hash_code*10+i-'0';
+    	   }
+    	   System.out.println(hash_code);
+    	   fis.read(cbuf,0,STORENUM*4);
     	   color_map.put(hash_code,cbuf);
     	   
        }
@@ -580,15 +587,9 @@ public class DataManager //implements ColorStoreInfo                            
    public boolean setColor(Synset synset, Colors colors){                  //????
 	   
 	   int code = synset.hashCode();
-	   char[] t = colors.serialize();//color_map.get(code);
-	   if(color_map.containsKey(code))
-	   {
-	     color_map.remove(code);
-	     color_map.put(code, t);
-	     return true;
-	   }
-	   else
-		   return false;
+	   byte[] t = colors.serialize();//color_map.get(code);
+       color_map.put(code, t);
+	   return true;
    }
    public Colors getColor(Synset synset)
    {
@@ -602,18 +603,18 @@ public class DataManager //implements ColorStoreInfo                            
 	   return new Colors();
        }
    }
-   public void write_color()
+   public void writeColor()
    {
 	 try  
 	 { 
-	   String space = " ";
-	   FileWriter fw = new FileWriter("store_color.txt");
+	   FileOutputStream fos = new FileOutputStream("store_color.txt");
 	   for(Integer key:color_map.keySet())
 	   {
-		   fw.write(key);
-		   fw.write(space);
-		   fw.write(color_map.get(key));
+		   fos.write(key.toString().getBytes());
+		   fos.write((byte) (' '));
+		   fos.write(color_map.get(key));
 	   }
+	   fos.close();
 	 }catch (IOException ioe)
 	 {
 		 ioe.printStackTrace();
