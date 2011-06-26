@@ -1,44 +1,44 @@
 package coloring;
 
 public class Color {
-	private char r;
-	private char g;
-	private char b;
-	private char a;
+	private int r;
+	private int g;
+	private int b;
+	private int a;
 	Color(float r, float g, float b, float a){
-		this.r=(char)(r*255+0.5);
-		this.g=(char)(g*255+0.5);
-		this.b=(char)(b*255+0.5);
-		this.a=(char)(a*255+0.5);
+		this.r=(int)(r*255+0.5);
+		this.g=(int)(g*255+0.5);
+		this.b=(int)(b*255+0.5);
+		this.a=(int)(a*255+0.5);
 	}
 	Color(int r,int g,int b,int a){
-		this.r=(char)r;
-		this.g=(char)g;
-		this.b=(char)b;
-		this.a=(char)a;
+		this.r=(int)r;
+		this.g=(int)g;
+		this.b=(int)b;
+		this.a=(int)a;
 	}
-	public void setR(char r){
+	public void setR(int r){
 		this.r=r;
 	}
-	public void setG(char g){
+	public void setG(int g){
 		this.g=g;
 	}
-	public void setB(char b){
+	public void setB(int b){
 		this.b=b;
 	}
-	public void setA(char a){
+	public void setA(int a){
 		this.a=a;
 	}
-	public char getR(){
+	public int getR(){
 		return r;
 	}
-	public char getG(){
+	public int getG(){
 		return g;
 	}
-	public char getB(){
+	public int getB(){
 		return b;
 	}
-	public char getA(){
+	public int getA(){
 		return a;
 	}
 }
