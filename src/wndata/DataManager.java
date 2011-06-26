@@ -327,7 +327,7 @@ public class DataManager //implements ColorStoreInfo                            
 			   for(int i = 0;i<p_cnt ;i++)
 			   {
 				   //PointerSymbol pointer_symbol,int synset_offset,PartOfSpeech pos,int source_target
-				   ptrs[i] = new SynsetPointer(PointerSymbol.forString(strs[local+1+i*4]),Integer.parseInt(strs[local+2+i*4]),PartOfSpeech.forString(strs[local+3+i*4]),Integer.parseInt(strs[local+4+i*4]));
+				   ptrs[i] = new SynsetPointer(PointerSymbol.forString(strs[local+1+i*4]),Integer.parseInt(strs[local+2+i*4]),PartOfSpeech.forString(strs[local+3+i*4]),Integer.parseInt(strs[local+4+i*4],16));
 				   //syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
  				   //syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);  //鏋勯�鍑芥暟
 				   //syn.ptrs[i].pos = strs[local+3+i*4];   // forstring
@@ -490,7 +490,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 
 	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 娴嬭瘯getindex   
-		IndexEntry t1 = DataManager.getSingleton().getIndex("find", PartOfSpeech.forString("v"));
+		IndexEntry t1 = DataManager.getSingleton().getIndex("word", PartOfSpeech.forString("v"));
 		//System.out.println(t.senseCount());
 		//System.out.println(t.getLemma());
 		//System.out.println(t.toString());
@@ -503,7 +503,7 @@ public class DataManager //implements ColorStoreInfo                            
 		{
 		   System.out.println(uv[i]);	
 		}
-	 
+          	 
 	 
 	 /*  test the second function
 	 Synset x = new DataManager().getSynset(779834,PartOfSpeech.forString("s"));
@@ -511,7 +511,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 System.out.println(t.getOffset()+" "+x.getOffset());
 	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
 	*/
-	    Synset[] t = DataManager.getSingleton().lookup("find",PartOfSpeech.forString("v"));   
+	    Synset[] t = DataManager.getSingleton().lookup("word",PartOfSpeech.forString("v"));   
         
 		
 		   
@@ -523,6 +523,13 @@ public class DataManager //implements ColorStoreInfo                            
         	{
         		System.out.println(wo[j].getWord()+" "+wo[j].getLexId()+" "+wo[j].getway_put());
         	}
+        	
+        	SynsetPointer[] ptrs = t[i].getPointers();
+        	for(int z =0;z<ptrs.length;z++)
+        	{
+        		System.out.println(ptrs[z].toString());
+        	}
+        	
         	String[] glo = t[i].getGlosses();
         	for(int k =0;k<glo.length;k++)
         	{
