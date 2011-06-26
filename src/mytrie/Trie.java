@@ -1,6 +1,6 @@
 package mytrie;
 /**
- * TireÀà£¬µ¥´Ê¹¹³ÉÒ»¸öTrieÊ÷¡£
+ * Tireï¿½à£¬ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Trieï¿½ï¿½ï¿½ï¿½
  * @author Lostmonkey
  * version 1.0
  */
@@ -8,10 +8,10 @@ public class Trie {
 
 	TrieNode root=new TrieNode();
 	private void search(int level,TrieNode now,String st,WordList mList,boolean checkall){
-		//levelµ±Ç°ËÑ¶àµ½Ê÷µÄ²ãÊý£¬nowµ±Ç°Ê÷½Úµã£¬stËÑË÷µÄ×Ö·û´®£¬mListÒÑËÑµ½µÄµ¥´Ê±í£¬checkallÊÇ·ñÔø¾­³öÏÖ¹ý*£¬³öÏÖ¹ýÔòÒªcheck×ÓÊ÷ÖÐËùÓÐµ¥´Ê¡£
+		//levelï¿½ï¿½Ç°ï¿½Ñ¶àµ½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½nowï¿½ï¿½Ç°ï¿½ï¿½ï¿½Úµã£¬stï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½mListï¿½ï¿½ï¿½Ñµï¿½ï¿½Äµï¿½ï¿½Ê±?checkallï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½*ï¿½ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½Òªcheckï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½Ê¡ï¿½
 		if (now==null) return;
+		if (mList.getSize()>=mList.getMaxSize()) return;		
 		if (now.match(st)) mList.putWord(now.getWord());
-		if (mList.getSize()>=mList.getMaxSize()) return;
 		Character mCh='*';
 		if (!checkall) mCh=st.charAt(level);
 		if (mCh=='*') checkall=true;
@@ -22,7 +22,7 @@ public class Trie {
 			search(level+1,now.getChild(mCh),st,mList,checkall);
 	}
 	/**
-	 * ÍùTrieÊ÷ÖÐ²åÈëÒ»¸öµ¥´Ê¡£
+	 * ï¿½ï¿½Trieï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ê¡ï¿½
 	 */
 	public void insert(String word){
 
@@ -35,7 +35,7 @@ public class Trie {
 		now.setWord(word);
 	}
 	/**
-	 * ·µ»ØÒ»¸öWordList¶ÔÏó£¬±íÊ¾±»patternÆ¥ÅäµÄµ¥´Ê¡£
+	 * ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½WordListï¿½ï¿½ï¿½ó£¬±ï¿½Ê¾ï¿½ï¿½patternÆ¥ï¿½ï¿½Äµï¿½ï¿½Ê¡ï¿½
 	 */
 	public WordList getWordList(String pattern,int maxsize){
 		WordList mList=new WordList();
@@ -49,16 +49,16 @@ public class Trie {
 
 class ChildLink{
 	/*
-	 * ¶ù×ÓµÄÁ´±íÀà
-	 * Õâ¸ö¶ù×ÓÊÇ¸¸Ç×mCharÕâ¸ö×Ö·û¶ÔÓ¦µÄ¶ù×Ó
-	 * Õâ¸ö¶ù×ÓµÄTrieNode¶ÔÏóÎªmChild
+	 * ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½mCharï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ó¦ï¿½Ä¶ï¿½ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½TrieNodeï¿½ï¿½ï¿½ï¿½ÎªmChild
 	 *
 	 */
 	Character mchar;
 	TrieNode mchild;
 	ChildLink next;
 	ChildLink(Character ch,TrieNode node){
-		//¹¹Ôìº¯Êý
+		//ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½
 		mchar=ch;
 		mchild=node;			
 	}
@@ -78,9 +78,9 @@ class ChildLink{
 
 class TrieNode{
 	/*
-	 * TireNodeÀà£¬±íÊ¾TrieÊ÷µÄÒ»¸ö½Úµã¡£
-	 * Èô´Ë½Úµã¶ÔÓ¦Ò»¸öµ¥´Ê£¬ÔòmWordÎª´Ëµ¥´Ê·ñÔòÎªnull¡£
-	 * ¶ù×ÓÓÃChildLinkµÄÁ´±í½á¹¹±íÊ¾¡£
+	 * TireNodeï¿½à£¬ï¿½ï¿½Ê¾Trieï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµã¡£
+	 * ï¿½ï¿½ï¿½Ë½Úµï¿½ï¿½Ó¦Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½mWordÎªï¿½Ëµï¿½ï¿½Ê·ï¿½ï¿½ï¿½Îªnullï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ChildLinkï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½Ê¾ï¿½ï¿½
 	 *
 	 */
 	String mWord;
@@ -90,19 +90,19 @@ class TrieNode{
 		mWord=null;
 	}
 	private ChildLink getByChar(Character ch){
-		//µÃµ½¶ù×ÓÁ´±íÖÐchÕâ¸ö×Ö·û¶ÔÓ¦µÄ½Úµã
+		//ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½chï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ó¦ï¿½Ä½Úµï¿½
 		ChildLink pre=null;
 		for (ChildLink tmp=head;tmp!=null&&tmp.getChar()<=ch;tmp=tmp.getNext()) pre=tmp;
 		return pre;
 	}
 	TrieNode getChild(Character ch){
-		//µÃµ½ch×Ö·û¶ÔÓ¦µÄ¶ù×Ó
+		//ï¿½Ãµï¿½chï¿½Ö·ï¿½ï¿½Ó¦ï¿½Ä¶ï¿½ï¿½ï¿½
 		ChildLink pre=getByChar(ch);
 		if (pre==null||pre.getChar()<ch) return null;
 		else return pre.getChild();
 	}
 	TrieNode addChild(Character ch){
-		//Ìí¼ÓÒ»¸öch×Ö·û¶ÔÓ¦µÄ½Úµã
+		//ï¿½ï¿½ï¿½Ò»ï¿½ï¿½chï¿½Ö·ï¿½ï¿½Ó¦ï¿½Ä½Úµï¿½
 		ChildLink pre=getByChar(ch);
 		ChildLink tmp=new ChildLink(ch,new TrieNode());
 		if (pre==null){
@@ -125,9 +125,9 @@ class TrieNode{
 	}
 	
 	boolean match(String pattern){
-		//ÅÐ¶ÏÎÒµÄµ¥´ÊÊÇ·ñºÍpatternÆ¥Åä¡£
+		//ï¿½Ð¶ï¿½ï¿½ÒµÄµï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½patternÆ¥ï¿½ä¡£
 		if (mWord==null) return false;
-		//Ó¦ÓÃ¶¯Ì¬¹æ»®Ëã·¨¡£
+		//Ó¦ï¿½Ã¶ï¿½Ì¬ï¿½æ»®ï¿½ã·¨ï¿½ï¿½
 		boolean[][] f=new boolean[mWord.length()+1][pattern.length()+1];
 		f[0][0]=true;
 		if (pattern.charAt(0)=='*')
