@@ -349,10 +349,11 @@ public class DataManager //implements ColorStoreInfo                            
 				   		   
 				   
 				   lenofgloss = strs.length-local-2-3*lenofframes;//-3-2*lenofframes;     // protected String[] glosses;
-				   String[] glosses = new String[lenofgloss];
+				   String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
 				   for(int i =0; i<lenofgloss ;i++)
 				   {
-					   glosses[i] = strs[local+3*lenofframes+2+i];//p_cnt*4+2+i];
+					   glosses[0] += strs[local+3*lenofframes+2+i];//p_cnt*4+2+i];
+				       glosses[0] +=" ";
 				   }
 				   				  
 				   
@@ -362,10 +363,11 @@ public class DataManager //implements ColorStoreInfo                            
 			   else
 			   {                                                // protected SynsetFrame[] frames;
 			      lenofgloss = strs.length-local-p_cnt*4-2;     // protected String[] glosses;
-			      String[] glosses = new String[lenofgloss];
+			      String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
 			      for(int i =0; i<lenofgloss ;i++)
 			      {
-				     glosses[i] = strs[local+p_cnt*4+2+i];
+				     glosses[0] += strs[local+p_cnt*4+2+i];
+				     glosses[0] +=" ";
 			      }
 			   		                          
 			      syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,glosses);
