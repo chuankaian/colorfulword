@@ -45,7 +45,8 @@ public class ColorManager implements ColorStoreInfo{
 		}
 		return instance;
 	}
-	public boolean setColor(Synset synset, Color color){
+	public boolean setColor(Synset synset, java.awt.Color color_){
+		Color color=new Color(color_.getRed(),color_.getGreen(),color_.getBlue(),0);
 		final Map<Synset,Float> map=new HashMap<Synset,Float>();
 		PriorityQueue<Synset> pq=new PriorityQueue<Synset>(1, new Comparator<Synset>(){
 			public int compare(Synset arg0, Synset arg1){
