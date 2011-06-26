@@ -115,7 +115,7 @@ public class DataManager //implements ColorStoreInfo                            
 			     
 		    strs = inde.split(" ");
 		    wor = strs[0];
-		    System.out.println(inde);
+		    //System.out.println(inde);
 		    if(wor.length()==0)        //跳过开头的说明
 		    {
 		    	//System.out.println("skip");
@@ -328,11 +328,11 @@ public class DataManager //implements ColorStoreInfo                            
 				   }
 				   		   
 				   
-				   lenofgloss = strs.length-local-2-2*lenofframes;     // protected String[] glosses;
+				   lenofgloss = strs.length-local-3-2*lenofframes;     // protected String[] glosses;
 				   String[] glosses = new String[lenofgloss];
 				   for(int i =0; i<lenofgloss ;i++)
 				   {
-					   glosses[i] = strs[local+p_cnt*4+1+i];
+					   glosses[i] = strs[local+p_cnt*4+2+i];
 				   }
 				   				  
 				   
@@ -341,11 +341,11 @@ public class DataManager //implements ColorStoreInfo                            
 			   }
 			   else
 			   {                                                // protected SynsetFrame[] frames;
-			      lenofgloss = strs.length-local-p_cnt*4-1;     // protected String[] glosses;
+			      lenofgloss = strs.length-local-p_cnt*4-2;     // protected String[] glosses;
 			      String[] glosses = new String[lenofgloss];
 			      for(int i =0; i<lenofgloss ;i++)
 			      {
-				     glosses[i] = strs[local+p_cnt*4+1+i];
+				     glosses[i] = strs[local+p_cnt*4+2+i];
 			      }
 			   		                          
 			      syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,glosses);
@@ -468,7 +468,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 
 	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 测试getindex   
-		IndexEntry t1 = new DataManager().getIndex("book", PartOfSpeech.forString("n"));
+		IndexEntry t1 = new DataManager().getIndex("frozen_orange_juice", PartOfSpeech.forString("n"));
 		//System.out.println(t.senseCount());
 		//System.out.println(t.getLemma());
 		//System.out.println(t.toString());
@@ -489,8 +489,10 @@ public class DataManager //implements ColorStoreInfo                            
 	 System.out.println(t.getOffset()+" "+x.getOffset());
 	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
 	*/
-	    Synset[] t = new DataManager().lookup("book",PartOfSpeech.forString("n"));   
-        for(int i =0;i<t.length;i++)
+	    Synset[] t = new DataManager().lookup("frozen_orange_juice",PartOfSpeech.forString("n"));   
+        
+		
+		for(int i =0;i<t.length;i++)
         {
         	System.out.println(t[i].getLexFilenum()+" "+t[i].getLexId()+" "+t[i].getOffset()+" "+t[i].getPtrCount()+" "+t[i].getWordCount());
         	WordSense[] wo = t[i].getWords();
