@@ -177,6 +177,8 @@ public class DataManager //implements ColorStoreInfo                            
 		  break;
 		 
 	 }
+	     if(index_line == null)
+	    	 return null;
 	     strs = index_line.split(" ");          //鍒囪瘝                                                                    // protected PartOfSpeech pos;
 		 //entry.lemma = word;                                                                              // protected int synset_cnt;
 		 //entry.pos = pos;                                                                               //protected int p_cnt;
@@ -295,12 +297,22 @@ public class DataManager //implements ColorStoreInfo                            
 		                                       		  // // protected int lex_id;鏁扮粍
 		  for(int i =0;i<w_cnt;i++)                                                        
 		  {
-			  if(strs[2]=="a"||strs[2]=="s")  //adj 鍜宎djs瑕佸幓鎺塵arker
+			   //if(strs[2]=="a"||strs[2]=="s")  //adj 鍜宎djs瑕佸幓鎺塵arker
+			  if(pos.equals(PartOfSpeech.forString(strs[2]))||pos.equals(PartOfSpeech.forString(strs[2])))
 			  {
 				String worsen_tmp = strs[4+2*i];
-				int loc = worsen_tmp.lastIndexOf("(");
-				worsen_tmp = worsen_tmp.substring(0,loc);
-				wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i]));
+				if(worsen_tmp.contains("("))
+				{	
+				  int loc = worsen_tmp.lastIndexOf("(");
+				  String way_put = worsen_tmp.substring(loc+1,loc+2);
+				  worsen_tmp = worsen_tmp.substring(0,loc);
+				  
+				  wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i]),way_put);
+				}
+				else
+				{
+					wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i]));
+				}
 			  }
 			  else
 			  {
@@ -322,7 +334,7 @@ public class DataManager //implements ColorStoreInfo                            
 				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //涓ょ粍鍗佸叚杩涘埗鎷煎嚭鏉ョ殑????  SynsetPointer閲岄潰鐢╥nt璁板綍杩欎袱缁勬暟
 			   }
 			   
-			   if(pos.equals("VERB"))                                         //verb鏈塮rames 
+			   if(pos.equals(PartOfSpeech.forString("v")))                                         //verb鏈塮rames 
 			   {
 				   local += 4*p_cnt+1;    //瀹氫綅鍒皀umofframes
 				   int lenofframes = Integer.parseInt(strs[local]);
@@ -449,6 +461,8 @@ public class DataManager //implements ColorStoreInfo                            
    {
 	   
 	   IndexEntry tmp = getIndex(word,pos);     //???缂烘瀯閫犲嚱鏁�
+	   if(tmp == null)
+	      return null;
 	   int[] offsets = tmp.getSynsetOffets();
 	   Synset[] syn = new Synset[tmp.getSynsetCount()];
 	   for(int i =0 ;i < tmp.getSynsetCount();i++)
@@ -475,7 +489,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 
 	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 娴嬭瘯getindex   
-		IndexEntry t1 = DataManager.getSingleton().getIndex("frozen_orange_juice", PartOfSpeech.forString("n"));
+		IndexEntry t1 = DataManager.getSingleton().getIndex("adulterous", PartOfSpeech.forString("s"));
 		//System.out.println(t.senseCount());
 		//System.out.println(t.getLemma());
 		//System.out.println(t.toString());
@@ -496,16 +510,16 @@ public class DataManager //implements ColorStoreInfo                            
 	 System.out.println(t.getOffset()+" "+x.getOffset());
 	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
 	*/
-	    Synset[] t = DataManager.getSingleton().lookup("frozen_orange_juice",PartOfSpeech.forString("n"));   
+	    Synset[] t = DataManager.getSingleton().lookup("adulterous",PartOfSpeech.forString("s"));   
         
 		
 		for(int i =0;i<t.length;i++)
-        {
+		{
         	System.out.println(t[i].getLexFilenum()+" "+t[i].getLexId()+" "+t[i].getOffset()+" "+t[i].getPtrCount()+" "+t[i].getWordCount());
         	WordSense[] wo = t[i].getWords();
         	for(int j =0;j<wo.length;j++)
         	{
-        		System.out.println(wo[j].getWord()+" "+wo[j].getLexId());
+        		System.out.println(wo[j].getWord()+" "+wo[j].getLexId()+" "+wo[j].getway_put());
         	}
         	String[] glo = t[i].getGlosses();
         	for(int k =0;k<glo.length;k++)
@@ -516,39 +530,6 @@ public class DataManager //implements ColorStoreInfo                            
         	System.out.println(".");
         	System.out.println(" these are the glosses of the "+ i+ "th synset");
         }
-   
-       /* public int getLexFilenum() {
-            return lex_filenum;
-        }
-        public PartOfSpeech getSSType() {
-            return ss_type;
-        }
-        public int getWordCount() {
-            return w_cnt;
-        }
-        public WordSense[] getWords() {
-            return words;
-        }
-        public int getLexId() {
-            return lex_id;
-        }
-        public int getPtrCount() {
-            return p_cnt;
-        }
-        public SynsetPointer[] getPointers() {
-            return ptrs;
-        }
-        public SynsetFrame[] getFrames() {
-            return frames;
-        }
-        public String[] getGlosses() {
-            return glosses;
-        }
-
-        public String toString() {
-            return "[" + ss_type + ", " +
-                "[" + Printing.printListToString(words, ",") + "]]";
-        }*/
    
    }
    /**
