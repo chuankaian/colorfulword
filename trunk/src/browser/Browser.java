@@ -1,7 +1,7 @@
 package browser;
 
-import java.io.*;
 import wndata.*;
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
