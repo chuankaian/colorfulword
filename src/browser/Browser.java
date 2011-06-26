@@ -43,39 +43,45 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             this.word = word;
             this.pos = pos;
             this.synsetOffset = synsetOffset;
+            // public String toString() {
+            //     return word;
+            // }
         }
     }
 
     public Browser() {
-        historyLink = new LinkedList();
+        manager = DataManager.getSingleton();
+        historyLink = new LinkedList<WordAndSynset>();
         JPanel queryPanel = new JPanel();
         queryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         queryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        forward = new BasicArrowButton(SwingConstants.WEST);
+        forward = new BasicArrowButton(SwingConstants.EAST);
         forward.setActionCommand("Forward");
         forward.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     System.out.println("Forward Clicked");
                     if (currPostion != null && currPostion.hasPrevious()) {
                         WordAndSynset previous = currPostion.previous();
+                        queryInput.setText(previous.word);
                         query(previous.word, previous.pos, previous.synsetOffset);
                     }
                 }
             });
-        queryPanel.add(forward);
-        backward = new BasicArrowButton(SwingConstants.EAST);
+        backward = new BasicArrowButton(SwingConstants.WEST);
         backward.setActionCommand("Backward");
         backward.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     System.out.println("Backward Clicked");
                     if (currPostion != null && currPostion.hasNext()) {
                         WordAndSynset next = currPostion.next();
+                        queryInput.setText(next.word);
                         query(next.word,next.pos,next.synsetOffset);
                     }
                 }
             });
         queryPanel.add(backward);
+        queryPanel.add(forward);
 
         JLabel queryLabel = new JLabel("Query:");
         queryPanel.add(queryLabel);
@@ -93,6 +99,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             posCheckBoxes[i] = new JCheckBox(ALL_POS[i].getDescription(), true);
             posCheckBoxes[i].addItemListener(new ItemListener() {
                     public void itemStateChanged(ItemEvent itemEvent) {
+                        modifyOptionMenu(lastMap);
                         redisplay();
                     }
                 });
@@ -123,7 +130,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
         menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
-        menu.add(createMenuItem("Exit"));
+        menu.add(createMenuItem("Quit"));
         menuBar.add(menu);
         menuBar.add(optionMenu);
         menu = new JMenu("Help");
@@ -158,8 +165,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         setContentPane(content);
         pack();
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //optionMenu.doClick();
     }
     protected JMenuItem createMenuItem(String label)
     {
@@ -174,11 +181,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     public void actionPerformed(ActionEvent evt) {
         String cmd = evt.getActionCommand();
 
-        if (cmd.equals("Quit")) {
+        if (cmd.equals("Exit")) {
             System.exit(0);
         } else if (cmd.equals("About us")) {
             // showAbout();
         } else if (cmd.equals("Query")) {
+            currPostion = null;
             query(queryInput.getText(),null,-1);
         } else if (cmd.equals("Cancel")) {
             cancelQuery();
@@ -208,8 +216,10 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         System.out.println(event.getEventType());
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             URL url = event.getURL();
-            query(url.getHost(),
-                  PartOfSpeech.forString(url.getProtocol()),
+            System.out.println(url.getFile().substring(1));
+            currPostion = null;
+            query(url.getFile().substring(1),
+                  PartOfSpeech.forString(url.getHost()),
                   url.getPort());
             // String description = event.getDescription();
             // search(description.substring(1));
@@ -255,6 +265,9 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
     protected void query(String queryWord, PartOfSpeech pos, int synsetOffset)
     {
+        System.out.println(queryWord);
+        queryInput.setText(queryWord);
+        queryInput.selectAll();
         if (queryer != null)
             cancelQuery();
         queryer = new Queryer(queryWord,pos,synsetOffset);
@@ -298,7 +311,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         public Object[] doInBackground() {
             Map<PartOfSpeech,Synset[]> map = null;
             map = new HashMap<PartOfSpeech,Synset[]>();
-            for (int i=0; i < ALL_POS.length; i++) {
+            for (int i = 0; i < ALL_POS.length; i++) {
                 PartOfSpeech pos = ALL_POS[i];
                 Synset[] synsets = manager.lookup(queryWord, pos);
                 if (synsets != null) {
@@ -314,6 +327,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             else
                 headSynset = null;
             result[1] = new HtmlPraser(queryWord, map, headSynset);
+
             return result;
         }
 
@@ -324,33 +338,41 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         public void done() {
             try {
                 if (!isCancelled()) {
-                    historyLink.add(new WordAndSynset(queryWord,pos,synsetOffset));
-                    currPostion = historyLink.listIterator(0);
+                    if (currPostion == null) {
+                        historyLink.addFirst(new WordAndSynset(queryWord,pos,synsetOffset));
+                        currPostion = historyLink.listIterator(1);
+                    }
+                    System.out.println(historyLink);
                     Object[] result;
                     result = get();
                     Map<PartOfSpeech,Synset[]> map = (Map<PartOfSpeech,Synset[]>) result[0];
                     HtmlPraser contentHtml = (HtmlPraser) result[1];
+                        // System.out.println(contentHtml.getHtml());
                     if (map != null) {
                         queryDone(queryWord, map, contentHtml);
                     }
                 }
             } catch (Exception ex) {
-                System.err.println("Searcher.done: " + ex.getMessage());
+                System.err.println("Queryer.done: " + ex.getMessage());
             }
         }
 
     }
 
     protected void modifyOptionMenu(Map<PartOfSpeech,Synset[]> map) {
+        if (map == null)
+            return ;
         for (int i = 0; i < ALL_POINTERSYMBOL.length; i++) {
             pointerSymbolCheckBoxes[i].setVisible(false);
         }
         for (int i = 0; i < ALL_POS.length; i++) {
-            Synset[] synsets = map.get(ALL_POS[i]);
-            if (synsets != null) {
-                for (Synset synset :synsets) {
-                    for (SynsetPointer ptr: synset.getPointers()) {
-                        pointerSymbolCheckBoxes[ptr.getPointerSymbol().ordinal()].setVisible(true);
+            if (posCheckBoxes[i].isSelected()) {
+                Synset[] synsets = map.get(ALL_POS[i]);
+                if (synsets != null) {
+                    for (Synset synset :synsets) {
+                        for (SynsetPointer ptr: synset.getPointers()) {
+                            pointerSymbolCheckBoxes[ptr.getPointerSymbol().ordinal()].setVisible(true);
+                        }
                     }
                 }
             }
@@ -435,7 +457,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 html += "</ol>";
                 content.append("</ol>");
 
-                html += "<h1>Rest Synsets of \"" + queryWord + "\":</h1>";
+                html += "<h1>All Synsets of \"" + queryWord + "\":</h1>";
                 content.append("<h1>Rest Synsets of \"" + queryWord + "\":</h1>");
             }
             else {
@@ -502,9 +524,11 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             String w = ws.getWord();
             URL url;
             try {
-                url = new URL(synset.getSSType().getDescription(),w,synset.getOffset(),"");
+                // url = new URL(synset.getSSType().getDescription(),w,synset.getOffset(),"nothing");
+                url = new URL("http",""+synset.getSSType().getSymbol()
+                              ,synset.getOffset(),"/"+w);
                 html += "<a href=" + url + ">" + w;
-                System.out.println("<a href=" + url + ">" + w);
+                // System.out.println("<a href=" + url + ">" + w);
                 content.append(html);
             }
             catch (MalformedURLException e) {
@@ -541,10 +565,12 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         protected String prepareHTMLGlosses(Synset synset) {
             String html = "";
             html += "<blockquote>";
+            content.append("<blockquote>");
             for (String gloss : synset.getGlosses()) {
                 html += prepareHTMLGloss(synset, gloss);
             }
             html += "</blockquote></li>";
+            content.append("</blockquote></li>");
             return html;
         }
 
@@ -555,7 +581,6 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             String html = "";
             String[] gloss_parts = gloss.split(";");
             for (String part : gloss_parts) {
-                part = part.trim();
                 if (part.startsWith("\"")) {
                     if (true/*prefs.getShowExamples()*/) {
                         html += "<em>" + part + "</em><br/>";
@@ -566,6 +591,10 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                     content.append(part + "<br/>");
                 }
             }
+            // html += gloss;
+
+            // if (gloss.endWith(";"))
+            // }
             return html;
         }
 

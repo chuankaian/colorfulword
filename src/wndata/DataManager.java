@@ -151,6 +151,7 @@ public class DataManager //implements ColorStoreInfo                            
 	
    public IndexEntry getIndex(String word,PartOfSpeech pos)   //鏍规嵁鍗曡瘝 鍜岃瘝鎬�锛屽湪map涓煡璇�锛岃В鏋愬苟杩斿洖鏈夊叧绱㈠紩鐨刬ndexentry绫�
   {
+	 word = word.replace(' ', '_');
 	 String index_line =null;
 	 String[] strs;
 		 
