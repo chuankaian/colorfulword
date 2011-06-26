@@ -298,7 +298,7 @@ public class DataManager //implements ColorStoreInfo                            
 		  for(int i =0;i<w_cnt;i++)                                                        
 		  {
 			   //if(strs[2]=="a"||strs[2]=="s")  //adj 鍜宎djs瑕佸幓鎺塵arker
-			  if(pos.equals(PartOfSpeech.forString(strs[2]))||pos.equals(PartOfSpeech.forString(strs[2])))
+			  if(pos.equals(PartOfSpeech.forString("a"))||pos.equals(PartOfSpeech.forString("s")))
 			  {
 				String worsen_tmp = strs[4+2*i];
 				if(worsen_tmp.contains("("))
@@ -307,20 +307,20 @@ public class DataManager //implements ColorStoreInfo                            
 				  String way_put = worsen_tmp.substring(loc+1,loc+2);
 				  worsen_tmp = worsen_tmp.substring(0,loc);
 				  
-				  wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i]),way_put);
+				  wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i],16),way_put);
 				}
 				else
 				{
-					wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i]));
+					wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i],16));
 				}
 			  }
 			  else
 			  {
-				  wordsen[i] = new WordSense(strs[4+2*i],Integer.parseInt(strs[5+2*i]));
-			  }
-		  }
+				  wordsen[i] = new WordSense(strs[4+2*i],Integer.parseInt(strs[5+2*i],16));
+			  }  //02575056 41 v 01 take 4 001 @ 02344645 v 0000 01 + 08 00 | carry out
+		  }//02227391 40 v 05 find 2 happen c chance c bump c encounter 0 003 + 07313943 n 0502 + 00041548 n 0102 + 09940447 n 0101 01 + 08 00 | come
 		  
-		  local = 4+2*w_cnt;
+		  local = 4+2*w_cnt;//6
 		  int p_cnt = Integer.parseInt(strs[local]);                                  // protected int p_cnt;
 			  
 			  SynsetPointer[] ptrs = new SynsetPointer[p_cnt];                                // protected SynsetPointer[] ptrs;        
@@ -333,25 +333,26 @@ public class DataManager //implements ColorStoreInfo                            
 				   //syn.ptrs[i].pos = strs[local+3+i*4];   // forstring
 				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //涓ょ粍鍗佸叚杩涘埗鎷煎嚭鏉ョ殑????  SynsetPointer閲岄潰鐢╥nt璁板綍杩欎袱缁勬暟
 			   }
-			   
+//	0		1 2  3  4     5  6  7   8      9  10  11  12     13  14 15 16 17 18
+//00006735 29 v 01 wheeze 0 002 @ 00001740 v 0000 + 00824340 n 0101 01 + 02 00 | breathe with difficulty			   
 			   if(pos.equals(PartOfSpeech.forString("v")))                                         //verb鏈塮rames 
 			   {
-				   local += 4*p_cnt+1;    //瀹氫綅鍒皀umofframes
-				   int lenofframes = Integer.parseInt(strs[local]);
+				   local += 4*p_cnt+1;    //瀹氫綅鍒皀umofframes  15
+				   int lenofframes = Integer.parseInt(strs[local]);//1
 				   SynsetFrame[] frames =new SynsetFrame[lenofframes];
 				   for(int i =0 ;i< lenofframes ;i++)
-				   {
-					   frames[i] = new SynsetFrame(Integer.parseInt(strs[local+2+2*i]),Integer.parseInt(strs[local+3+2*i]));
+				   {                                        //            17                                  18
+					   frames[i] = new SynsetFrame(Integer.parseInt(strs[local+2+3*i]),Integer.parseInt(strs[local+3+3*i]));
 					   //syn.frames[i].f_num = Integer.parseInt(strs[local+2+2*i]);
 				       //syn.frames[i].w_num = Integer.parseInt(strs[local+3+2*i]);
 				   }
 				   		   
 				   
-				   lenofgloss = strs.length-local-3-2*lenofframes;     // protected String[] glosses;
+				   lenofgloss = strs.length-local-2-3*lenofframes;//-3-2*lenofframes;     // protected String[] glosses;
 				   String[] glosses = new String[lenofgloss];
 				   for(int i =0; i<lenofgloss ;i++)
 				   {
-					   glosses[i] = strs[local+p_cnt*4+2+i];
+					   glosses[i] = strs[local+3*lenofframes+2+i];//p_cnt*4+2+i];
 				   }
 				   				  
 				   
@@ -489,7 +490,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 
 	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 娴嬭瘯getindex   
-		IndexEntry t1 = DataManager.getSingleton().getIndex("adulterous", PartOfSpeech.forString("s"));
+		IndexEntry t1 = DataManager.getSingleton().getIndex("find", PartOfSpeech.forString("v"));
 		//System.out.println(t.senseCount());
 		//System.out.println(t.getLemma());
 		//System.out.println(t.toString());
@@ -510,9 +511,10 @@ public class DataManager //implements ColorStoreInfo                            
 	 System.out.println(t.getOffset()+" "+x.getOffset());
 	 System.out.println(t.getLexFilenum()+" "+x.getLexFilenum());
 	*/
-	    Synset[] t = DataManager.getSingleton().lookup("adulterous",PartOfSpeech.forString("s"));   
+	    Synset[] t = DataManager.getSingleton().lookup("find",PartOfSpeech.forString("v"));   
         
 		
+		   
 		for(int i =0;i<t.length;i++)
 		{
         	System.out.println(t[i].getLexFilenum()+" "+t[i].getLexId()+" "+t[i].getOffset()+" "+t[i].getPtrCount()+" "+t[i].getWordCount());
