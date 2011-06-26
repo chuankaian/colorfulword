@@ -5,6 +5,7 @@ package wndata;
 import java.io.*;
 import java.util.*;
 import coloring.*;
+import mytrie.*;
 /**
  * 杩欎釜绫诲簲璇ョ粰鍏ㄥ眬鐨勫簳灞傝鍐欐彁渚涙敮鎸侊紝鏈�ソ鑳芥湁鏈哄埗淇濊瘉鏁翠釜绋嬪簭涓彧鏈変竴涓繖涓被鐨勫疄渚�杩欐牱鍙璇诲彇涓�绱㈠紩鏂囦欢,鑰屼笖鎴戜滑涔嬪墠璁ㄨ鐨勭紦瀛樻満鍒惰兘杈冨ソ鍦板彂鎸ヤ綔鐢�
  * 瀹炵幇涓婃垜鏄繖鏍疯�铏戠殑.鐜板湪鍏堜笉闇�鐢ㄥ鏉傜殑鏁版嵁缁撴瀯鍘昏瘯鍥炬彁楂樻晥鐜�鍙互鍦ㄤ竴寮�灏卞皢鎵�湁鐨刬ndex鏂囦欢涓殑鏉＄洰璇诲埌鍐呭瓨涓�鐢ㄤ竴涓狹ap鎴栬�浠�箞淇濆瓨璧锋潵.鏌ヨ鐨勬椂鍊�鐩存帴鍦ㄨ繖涓狹ap涓彇鍑虹浉搴旂殑Index鏉＄洰杩斿洖灏卞彲浠ヤ簡
@@ -15,6 +16,7 @@ import coloring.*;
 
 public class DataManager //implements ColorStoreInfo                                                        //  棰滆壊,璋冮敊
 {
+	static Trie trie;
    static Synset[] n_cache; 
    static Synset[] v_cache;
    static Synset[] a_cache;
@@ -35,6 +37,7 @@ public class DataManager //implements ColorStoreInfo                            
    {
 	 
 	 RandomAccessFile raf; 
+	 trie = new Trie();
 	  n_cache = new Synset[10000];                    //缂撳瓨  
 	  v_cache = new Synset[10000];                    //缂撳瓨
 	  a_cache = new Synset[10000];                    //缂撳瓨
@@ -131,6 +134,7 @@ public class DataManager //implements ColorStoreInfo                            
 		    else
 		    {
 			 index_map[i].put(wor,inde);   //鏀惧叆map
+			 trie.insert(wor);
 		    }
 		    //System.out.println("true end");
 		}
@@ -559,6 +563,10 @@ public class DataManager //implements ColorStoreInfo                            
 	   return new Colors();
    }
    
+   public static Trie getTrie()
+   {
+	   return trie;
+   }
    //初始化块读文件，hashcode和10个char，组成map,  setColor，synset,hashcode，编辑10个char，getchar 是synset知道hashcode，再得到10个char. 最后还应写回map
 }
 
