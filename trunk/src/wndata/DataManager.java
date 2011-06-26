@@ -27,29 +27,31 @@ public class DataManager //implements ColorStoreInfo                            
  
    static                                                                  //初始化块，将index分类读入内存，以map形式存储
    {
-	 RandomAccessFile raf;
+	 
+	 RandomAccessFile raf; 
 	  n_cache = new Synset[10000];                    //缓存  
 	  v_cache = new Synset[10000];                    //缓存
 	  a_cache = new Synset[10000];                    //缓存
 	  r_cache = new Synset[10000];                    //缓存
+	 
+	 File n_index_file = new File("./dict/index.noun");                //四个索引的相对路径
+	 File v_index_file = new File("./dict/index.verb");
+	 File a_index_file = new File("./dict/index.adj");
+	 File r_index_file = new File("./dict/index.adv");
+	 
 	 /*
-	 File n_index_file = new File("../dict/index.noun");                //四个索引的相对路径
-	 File v_index_file = new File("../dict/index.verb");
-	 File a_index_file = new File("../dict/index.adj");
-	 File r_index_file = new File("../dict/index.adv");
-	 */
-	 File n_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.noun");                //四个索引的相对路径
+	 File n_index_file = new File("./dict/index.noun");                //四个索引的相对路径
 	 File v_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.verb");
 	 File a_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adj");
 	 File r_index_file = new File("F:\\eclipse\\colorfulword\\src\\dict\\index.adv");
-	 
+	 */
 	 
 	 
 	  n_index = new HashMap<String,String>();                                     //四种单词建立 单词到对应index行的map
 	  v_index = new HashMap<String,String>();
 	  a_index = new HashMap<String,String>();
 	  r_index = new HashMap<String,String>();
-	 
+	  
 	 /*File temp = new File("../dict/preindex.adj");
 	 try
 	 {
@@ -97,40 +99,49 @@ public class DataManager //implements ColorStoreInfo                            
 			 
 		 }
 	 }*/  //装进map的第二个版本
-	 
+   try
+   { //System.out.println("try");
 	 for(int i = 0;i < 4 ;i++)
 	 {
+		 //System.out.println("for");
+		 raf = new RandomAccessFile(index_file[i], "r");
 		 while(true)
 		 {
-			 /*RandomAccessFile*/ 
-			 try
-			 {
-			     raf = new RandomAccessFile(index_file[i], "r"); 
-			     inde = raf.readLine();
-			     if(inde.length()== 0)      //文件末尾 
-			         break;
+			 //System.out.println("true");
+		    inde = raf.readLine();
+		    
+		    
+		    if(inde==null)      //文件末尾 
+		       break;
 			     
-			     strs = inde.split(" ");
-			     wor = strs[0];
-			    if(wor.length()==0)        //跳过开头的说明
-				   continue;
-			    else
-			    {
-				 index_map[i].put(wor,inde);   //放入map
-			    }
-			 }catch(FileNotFoundException e)
-			 {
-					e.printStackTrace();
-			 }
-			 catch(IOException e)
-			 {
-					e.printStackTrace();
-			 }
-		 }
+		    strs = inde.split(" ");
+		    wor = strs[0];
+		    System.out.println(inde);
+		    if(wor.length()==0)        //跳过开头的说明
+		    {
+		    	//System.out.println("skip");
+		    	continue;
+		    }
+		    else
+		    {
+			 index_map[i].put(wor,inde);   //放入map
+		    }
+		    //System.out.println("true end");
+		}
 	 }
+   }catch(FileNotFoundException e)
+	 {
+		e.printStackTrace();
+     }
+     catch(IOException e)
+     {
+		e.printStackTrace();
+     }
 	 
-   }	 
+  }	 
       
+   
+   
 	
    public IndexEntry getIndex(String word,PartOfSpeech pos)   //根据单词 和词性 ，在map中查询 ，解析并返回有关索引的indexentry类
   {
@@ -192,35 +203,35 @@ public class DataManager //implements ColorStoreInfo                            
 	   switch(pos)                                                         //verb有frames
 	   {
 	     case NOUN: 
-		   if(n_cache[add].offset == offset && n_cache[add].getSSType().equals(pos))                            
+		   if(n_cache[add]!=null && n_cache[add].getOffset() == offset && n_cache[add].getSSType().equals(pos))                            
 		   {
 			   return n_cache[add];
 		   }
 		   break;
 		   
 	     case VERB:
-	    	 if(v_cache[add].offset == offset && v_cache[add].getSSType().equals(pos))
+	    	 if(v_cache[add]!=null && v_cache[add].getOffset() == offset && v_cache[add].getSSType().equals(pos))
 	    	 {
 	    		 return v_cache[add];
 	    	 }
 	     break;	 
 		   
 	     case ADV:
-	    	 if(r_cache[add].offset == offset && r_cache[add].getSSType().equals(pos))
+	    	 if(r_cache[add]!=null && r_cache[add].getOffset() == offset && r_cache[add].getSSType().equals(pos))
 	    	 {
 	    		 return r_cache[add];
 	    	 }
 	     break;	
 	     
 	     case ADJ:
-	    	 if(a_cache[add].offset == offset && a_cache[add].getSSType().equals(pos))
+	    	 if(a_cache[add]!=null && a_cache[add].getOffset() == offset && a_cache[add].getSSType().equals(pos))
 	    	 {
 	    		 return a_cache[add];
 	    	 }
 	     break;	
 	     
 	     case ADJS:
-	    	 if(a_cache[add].offset == offset && a_cache[add].getSSType().equals(pos))
+	    	 if(a_cache[add]!= null && a_cache[add].getOffset() == offset && a_cache[add].getSSType().equals(pos))
 	    	 {
 	    		 return a_cache[add];
 	    	 }
@@ -232,23 +243,23 @@ public class DataManager //implements ColorStoreInfo                            
 	     switch(pos)
 	     {
 	        case NOUN:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("../dict/data.noun","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.noun","r");
 	        break;
 	        
 	        case VERB:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("../dict/data.verb","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.verb","r");
 	        break;
 	        
 	        case ADV:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("../dict/data.adv","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adv","r");
 	        break;
 	        
 	        case ADJ:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("../dict/data.adj","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adj","r");
 	        break;
 	        
 	        case ADJS:
-	        	/*RandomAccessFile*/ raf = new RandomAccessFile("../dict/data.adj","r");
+	        	/*RandomAccessFile*/ raf = new RandomAccessFile("./dict/data.adj","r");
 	        break;
 	        default:
 	            
@@ -445,10 +456,39 @@ public class DataManager //implements ColorStoreInfo                            
    public static void main(String[] args)
    {
 	 System.out.println("start");
-	//public IndexEntry getIndex(String word,PartOfSpeech pos)   
-	//IndexEntry t = new DataManager().getIndex("book", PartOfSpeech.forString("NOUN"));
-	//System.out.println(t.senseCount());
-	   // Synset[] t = new DataManager().lookup("book",PartOfSpeech.forChar('n'));   
+	
+	 /*FileWriter fw =null;
+	 try
+	 {
+		 fw = new FileWriter("./test.txt");
+		 fw.write("sadfjk;l\r\n");
+	 }catch(IOException ioe)
+	 {
+		 ioe.printStackTrace();
+	 }*/
+	 
+	 
+	 //public IndexEntry getIndex(String word,PartOfSpeech pos) 测试getindex   
+		/*IndexEntry t = new DataManager().getIndex("book", PartOfSpeech.forString("n"));
+		System.out.println(t.senseCount());
+		System.out.println(t.getLemma());
+		System.out.println(t.toString());
+		int [] s = t.getSynsetOffets();
+		String[] uv =t.getPtrSymbols();
+		for(int i =0;i<s.length;i++)
+			System.out.println(s[i]);
+		
+		for(int i =0;i<uv.length;i++)
+		{
+		   System.out.println(uv[i]);	
+		}*/
+	 
+	 Synset x = new DataManager().getSynset(779834,PartOfSpeech.forString("s"));
+	 Synset t = new DataManager().getSynset(6319490,PartOfSpeech.forString("n"));
+	 System.out.println(t.getOffset());
+	 System.out.println(t.getLexFilenum());
+	
+	    //Synset[] t = new DataManager().lookup("book",PartOfSpeech.forString("n"));   
    }
    /**
     * 以下是新加入的Color相关的读写操作，分别是Color的写入和读出操作，Color类的声明详见Color。java
