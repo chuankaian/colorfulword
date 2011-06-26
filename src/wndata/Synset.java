@@ -83,8 +83,8 @@ public class Synset {
     }
 
     public String toString() {
-        return "[" + ss_type + ", " +
-            "[" + Printing.printListToString(words, ",") + "]]";
+//        return "[" + ss_type + ", " + "[" + Printing.printListToString(words, ",") + "]]";
+    	return words[0].word;
     }
 
     /**
