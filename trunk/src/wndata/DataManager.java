@@ -25,6 +25,9 @@ public class DataManager //implements ColorStoreInfo                            
                                  v_index,
                                  a_index,
                                  r_index;
+   
+    static HashMap<Integer,char[]> color_map;                    //????
+   
    private static DataManager instance;
    private DataManager(){}
    public static DataManager getSingleton(){
@@ -79,7 +82,7 @@ public class DataManager //implements ColorStoreInfo                            
 	 
 	 /*for(int i =0 ;i<4;i++)
 	 {
-	     pre = raf_1.length();                                           //瀹氫綅????锛屾湁寰呴獙璇�
+	     pre = raf_1.length();                                           //瀹氫綅锛屾湁寰呴獙璇�
 		 raf = new RandomAccessFile(index_file[i], "r");                 //鍚嶈瘝
 	     totallen = raf.length();                                        //鍏ㄦ枃闀垮害
 	     do
@@ -147,7 +150,25 @@ public class DataManager //implements ColorStoreInfo                            
      {
 		e.printStackTrace();
      }
-	 
+	                                                             //????
+     color_map = new HashMap<Integer,char[]>();
+     try
+     {
+       FileReader fr = new FileReader("store_color.txt");
+       char[] cbuf = new char[10];
+       int hash_code;
+       while((hash_code=fr.read())!=-1)
+       {
+    	   fr.skip(1);
+    	   fr.read(cbuf,0,10);
+    	   color_map.put(hash_code,cbuf);
+    	   
+       }
+    }catch(IOException ioe)
+    {
+    	ioe.printStackTrace();
+    }
+          
   }	 
       
    
@@ -336,7 +357,7 @@ public class DataManager //implements ColorStoreInfo                            
 				   //syn.ptrs[i].PointerSymbol = strs[local+1+i*4];                   //
  				   //syn.ptrs[i].synset_offset = Integer.parseInt(strs[local+2+i*4]);  //鏋勯�鍑芥暟
 				   //syn.ptrs[i].pos = strs[local+3+i*4];   // forstring
-				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //涓ょ粍鍗佸叚杩涘埗鎷煎嚭鏉ョ殑????  SynsetPointer閲岄潰鐢╥nt璁板綍杩欎袱缁勬暟
+				   //syn.ptrs[i].source_target = strs[local+4+i*4];    //涓ょ粍鍗佸叚杩涘埗鎷煎嚭鏉ョ殑  SynsetPointer閲岄潰鐢╥nt璁板綍杩欎袱缁勬暟
 			   }
 //	0		1 2  3  4     5  6  7   8      9  10  11  12     13  14 15 16 17 18
 //00006735 29 v 01 wheeze 0 002 @ 00001740 v 0000 + 00824340 n 0101 01 + 02 00 | breathe with difficulty			   
@@ -556,17 +577,52 @@ public class DataManager //implements ColorStoreInfo                            
     * 浠ヤ笅鏄柊鍔犲叆鐨凜olor鐩稿叧鐨勮鍐欐搷浣滐紝鍒嗗埆鏄疌olor鐨勫啓鍏ュ拰璇诲嚭鎿嶄綔锛孋olor绫荤殑澹版槑璇﹁Color銆俲ava
     * By Zero锛�
     */
-   public boolean setColor(Synset synset, Colors colors){
-	   return true;
+   public boolean setColor(Synset synset, Colors colors){                  //????
+	   
+	   int code = synset.hashCode();
+	   char[] t = colors.serialize();//color_map.get(code);
+	   if(color_map.containsKey(code))
+	   {
+	     color_map.remove(code);
+	     color_map.put(code, t);
+	     return true;
+	   }
+	   else
+		   return false;
    }
-   public Colors getColor(Synset synset){
+   public Colors getColor(Synset synset)
+   {
+	   int code = synset.hashCode();
+	   if(color_map.containsKey(code))
+	   {
+		   return new Colors(color_map.get(code));
+	   }
+	   else
+	   {
 	   return new Colors();
+       }
    }
-   
+   public void write_color()
+   {
+	 try  
+	 { 
+	   String space = " ";
+	   FileWriter fw = new FileWriter("store_color.txt");
+	   for(Integer key:color_map.keySet())
+	   {
+		   fw.write(key);
+		   fw.write(space);
+		   fw.write(color_map.get(key));
+	   }
+	 }catch (IOException ioe)
+	 {
+		 ioe.printStackTrace();
+	 }
+   }
    public static Trie getTrie()
    {
 	   return trie;
    }
    //初始化块读文件，hashcode和10个char，组成map,  setColor，synset,hashcode，编辑10个char，getchar 是synset知道hashcode，再得到10个char. 最后还应写回map
 }
-
+ 
