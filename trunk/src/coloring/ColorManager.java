@@ -64,7 +64,9 @@ public class ColorManager implements ColorStoreInfo{
 			Synset u=pq.poll();
 			Float ui=map.get(u);
 			color.setA((char) ui.intValue());
-			DataManager.getSingleton().getColor(u).addColor(color);
+			Colors tmp=DataManager.getSingleton().getColor(u);
+			tmp.addColor(color);
+			DataManager.getSingleton().setColor(u, tmp);
 			SynsetPointer[] sp=synset.getPointers();
 			for (int i=0;i<sp.length;++i){
 				Synset v=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(), sp[i].getPartOfSpeech());
@@ -95,5 +97,18 @@ public class ColorManager implements ColorStoreInfo{
 			b+=colors.getB(i)/255.0*colors.getA(i)/totWeight;
 		}
 		return new Color(r,g,b,0);
+	}
+	static public void main(String[] args){
+		Synset synset=DataManager.getSingleton().lookup("zyrian", PartOfSpeech.forChar('n'))[0];
+		ColorManager.getSingleton().setColor(synset, new java.awt.Color(255,0,0,0));
+/*		Colors colors=DataManager.getSingleton().getColor(synset);
+		for (int i=0;i<STORENUM;++i)
+			System.out.println((int)colors.getR(i)+","+(int)colors.getG(i)+","+(int)colors.getB(i));
+		colors.setR(0, 128);
+		colors.setR(3, 63);
+		colors.setR(2, 25);
+		colors.setB(1, 255);
+		DataManager.getSingleton().setColor(synset, colors);*/
+		DataManager.getSingleton().writeColor();
 	}
 }
