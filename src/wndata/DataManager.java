@@ -350,8 +350,10 @@ public class DataManager //implements ColorStoreInfo                            
 				   
 				   lenofgloss = strs.length-local-2-3*lenofframes;//-3-2*lenofframes;     // protected String[] glosses;
 				   String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
+				   glosses[0] = "";
 				   for(int i =0; i<lenofgloss ;i++)
 				   {
+					   
 					   glosses[0] += strs[local+3*lenofframes+2+i];//p_cnt*4+2+i];
 				       glosses[0] +=" ";
 				   }
@@ -364,8 +366,10 @@ public class DataManager //implements ColorStoreInfo                            
 			   {                                                // protected SynsetFrame[] frames;
 			      lenofgloss = strs.length-local-p_cnt*4-2;     // protected String[] glosses;
 			      String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
+			      glosses[0]="";
 			      for(int i =0; i<lenofgloss ;i++)
 			      {
+			    	 
 				     glosses[0] += strs[local+p_cnt*4+2+i];
 				     glosses[0] +=" ";
 			      }
@@ -553,5 +557,7 @@ public class DataManager //implements ColorStoreInfo                            
    public Colors getColor(Synset synset){
 	   return new Colors();
    }
+   
+   //初始化块读文件，hashcode和10个char，  setColor
 }
 
