@@ -2,10 +2,10 @@ package mygraph;
 
 import wndata.Synset;
 
-public class Node{
+public class Gnode{
 	public boolean focus;
 	public Synset synset;
-	public Node(Synset synset){
+	public Gnode(Synset synset){
 		this.focus=false;
 		this.synset=synset;
 	}
