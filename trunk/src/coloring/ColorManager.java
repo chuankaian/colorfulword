@@ -67,7 +67,7 @@ public class ColorManager implements ColorStoreInfo{
 			Colors tmp=DataManager.getSingleton().getColor(u);
 			tmp.addColor(color);
 			DataManager.getSingleton().setColor(u, tmp);
-			SynsetPointer[] sp=synset.getPointers();
+			SynsetPointer[] sp=u.getPointers();
 			for (int i=0;i<sp.length;++i){
 				Synset v=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(), sp[i].getPartOfSpeech());
 				Float vi=ui.floatValue()*weight.get(sp[i].getPointerSymbol().getDescription());
@@ -99,7 +99,7 @@ public class ColorManager implements ColorStoreInfo{
 		return new Color(r,g,b,0);
 	}
 	static public void main(String[] args){
-		Synset synset=DataManager.getSingleton().lookup("zyrian", PartOfSpeech.forChar('n'))[0];
+		Synset synset=DataManager.getSingleton().lookup("red", PartOfSpeech.forChar('n'))[0];
 		ColorManager.getSingleton().setColor(synset, new java.awt.Color(255,0,0,0));
 /*		Colors colors=DataManager.getSingleton().getColor(synset);
 		for (int i=0;i<STORENUM;++i)
