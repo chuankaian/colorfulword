@@ -71,7 +71,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected JMenuBar menuBar;
     protected JMenu optionMenu;
     protected boolean ctrlPressed;
-    protected boolean shiftPressed;
+    protected boolean altPressed;
     // protected MenuButton optionButton;
     protected final PartOfSpeech[] ALL_POS = { PartOfSpeech.NOUN,
                                                PartOfSpeech.VERB,
@@ -250,7 +250,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
         menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
-        menu.add(createMenuItem("Quit"));
+        menu.add(createMenuItem("Exit"));
         menuBar.add(menu);
         menuBar.add(optionMenu);
         menu = new JMenu("Help");
@@ -270,14 +270,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         outputText.addHyperlinkListener(this);
         outputText.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-                        shiftPressed = true;
+                    if (e.getKeyCode() == KeyEvent.VK_ALT)
+                        altPressed = true;
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = true;
                 }
                 public void keyReleased(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-                        shiftPressed = false;
+                    if (e.getKeyCode() == KeyEvent.VK_ALT)
+                        altPressed = false;
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = false;
                 }
@@ -301,14 +301,14 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
         addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-                        shiftPressed = true;
+                    if (e.getKeyCode() == KeyEvent.VK_ALT)
+                        altPressed = true;
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = true;
                 }
                 public void keyReleased(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-                        shiftPressed = false;
+                    if (e.getKeyCode() == KeyEvent.VK_ALT)
+                        altPressed = false;
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
                         ctrlPressed = false;
                 }
@@ -370,20 +370,21 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             PartOfSpeech pos = PartOfSpeech.forString(url.getHost());
             int synsetOffset = url.getPort();
             String word = url.getFile().substring(1);
-            System.out.println(ctrlPressed + " " + shiftPressed);
-            if (ctrlPressed && !shiftPressed) {
+            System.out.println(ctrlPressed + " " + altPressed);
+            if (ctrlPressed && !altPressed) {
                 java.awt.Color color = javax.swing.JColorChooser.showDialog(this,"Set Synset Color",null);
                 if (color != null) {
                     ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
-                    		if (synsetColorCheckBox.isSelected())
-                    			redisplay();
-                	}
-                
+                            if (synsetColorCheckBox.isSelected())
+                                redisplay();
+                    }
+
 
             }
-            else if (!ctrlPressed && shiftPressed) {
+            else if (!ctrlPressed && altPressed) {
                 JDialog graphDialog = new JDialog(this,"Graphviz", true) ;
-                GraphExplorer synsetGraph = new GraphExplorer(manager.getSynset(synsetOffset,pos));
+                GraphExplorer synsetGraph = new GraphExplorer(manager.getSynset(synsetOffset,pos),
+                                                                            this.getPointerSymbolCheckBoxesState());
                 graphDialog.getContentPane().add(synsetGraph);
                 graphDialog.pack();
                 graphDialog.setVisible(true);
@@ -629,6 +630,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 // html+= "<li>";
                 content.append("<li>");
                 prepareHTMLWordList(headSynset);
+                    if (synsetColorCheckBox.isSelected())
+                            this.prepareSynsetColor(headSynset);
                 prepareHTMLGlosses(headSynset);
                 prepareHTMLSynsetPointers(headSynset);
                 // html += "</li>";
@@ -680,9 +683,9 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         protected void prepareSynsetColor(Synset synset) {
             coloring.Color color = ColorManager.getSingleton().getColor(synset);
             String s = "<a>              </a>Color:<a style=\"background-color:rgb(" + color.getR()+","
-            +color.getG()+","+color.getB()+")\">               "+"</a>";
+            +color.getG()+","+color.getB()+")\">&nbsp;&nbsp;&nbsp;"+"</a>";
             s = s.trim();
-            System.out.println(s);
+            //System.out.println(s);
             content.append(s);
         }
 
