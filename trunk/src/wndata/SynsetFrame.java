@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /*
  * A SynsetFrame is a pair of numbers (f_num, w_num).
- * LZYNOTE:可以考虑将这个SynsetFrame仿照PointerSymbol也实现成一个enum类。
+ * 可以考虑将这个SynsetFrame仿照PointerSymbol也实现成丄1�7个enum类�1�7�1�7
  */
 public class SynsetFrame {
 
