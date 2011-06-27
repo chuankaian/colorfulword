@@ -12,6 +12,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
@@ -72,8 +74,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
     protected JCheckBox synsetColorCheckBox;
     protected JMenuBar menuBar;
     protected JMenu optionMenu;
-    protected boolean ctrlPressed;
-    protected boolean altPressed;
+    protected boolean pickColor;
+    protected boolean paintGraph;
     // protected MenuButton optionButton;
     protected final PartOfSpeech[] ALL_POS = { PartOfSpeech.NOUN,
                                                PartOfSpeech.VERB,
@@ -228,7 +230,29 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 }
             });
         toolsPanel.add(synsetColorCheckBox);
-
+        JButton buttonPickColor = new JButton("Pick color");
+        buttonPickColor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				setPickColor();
+			}        	
+        });
+        toolsPanel.add(buttonPickColor);
+        JButton buttonPaintGraph = new JButton("Paint Graph");
+        buttonPaintGraph.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent evt){
+        		setPaintGraph();
+        	}
+        });
+        toolsPanel.add(buttonPaintGraph);
+        
+        this.addMouseListener(new MouseAdapter() {
+        	public void mouseClicked(MouseEvent e) {
+        		if (e.getButton() == MouseEvent.BUTTON3 ) 
+        			cleanClickState();
+        	}
+        });
+        
+        
         optionMenu = new JMenu("Option");
         // JMenuItem menuItem = new JMenuItem("Select All");
         // menuItem.addItemListener(this);
@@ -273,15 +297,15 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         outputText.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ALT)
-                        altPressed = true;
+                    	setPaintGraph();
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlPressed = true;
+                    	setPickColor();	
                 }
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ALT)
-                        altPressed = false;
+                        cleanClickState();
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlPressed = false;
+                    	cleanClickState();
                 }
             });
         JScrollPane scroller = new JScrollPane(outputText);
@@ -301,20 +325,6 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         setContentPane(content);
 
 
-        addKeyListener(new KeyAdapter() {
-                public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_ALT)
-                        altPressed = true;
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlPressed = true;
-                }
-                public void keyReleased(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_ALT)
-                        altPressed = false;
-                    if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-                        ctrlPressed = false;
-                }
-            });
 
         pack();
         addWindowListener(new WindowAdapter() {
@@ -370,7 +380,19 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             System.err.println("Browser.actionPerformed: unknown command: " + cmd);
         }
     }
-
+    
+    protected void cleanClickState() {
+    	pickColor = false;
+    	paintGraph = false;
+    }
+    protected void setPickColor() {
+    	pickColor = true;
+    	paintGraph = false;
+    }
+    protected void setPaintGraph() {
+    	pickColor = false;
+    	paintGraph = true;
+    }
     /**
      * HyperlinkListener method called when the user clicks on a
      * link in the HTML display of results. This causes a new search
@@ -383,8 +405,9 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             PartOfSpeech pos = PartOfSpeech.forString(url.getHost());
             int synsetOffset = url.getPort();
             String word = url.getFile().substring(1);
-            System.out.println(ctrlPressed + " " + altPressed);
-            if (ctrlPressed && !altPressed) {
+            System.out.println(pickColor + " " + paintGraph);
+            if (pickColor && !paintGraph) {
+            	cleanClickState();
                 java.awt.Color color = javax.swing.JColorChooser.showDialog(this,"Set Synset Color",null);
                 if (color != null) {
                     ColorManager.getSingleton().setColor(manager.getSynset(synsetOffset,pos),color);
@@ -394,7 +417,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
 
 
             }
-            else if (!ctrlPressed && altPressed) {
+            else if (!pickColor && paintGraph) {
+            	cleanClickState();
                 JDialog graphDialog = new JDialog(this,"Graphviz", true) ;
                 GraphExplorer synsetGraph = new GraphExplorer(manager.getSynset(synsetOffset,pos),
                                                                             this.getPointerSymbolCheckBoxesState());
@@ -403,7 +427,7 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
                 graphDialog.setVisible(true);
             }
             else {
-
+            	cleanClickState();
                 currPostion = null;
                 // query(url.getFile().substring(1),
                 //       PartOfSpeech.forString(url.getHost()),
