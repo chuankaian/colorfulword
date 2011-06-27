@@ -141,6 +141,7 @@ public class DataManager implements ColorStoreInfo                              
 		    }
 		    //System.out.println("true end");
 		}
+		 raf.close();
 	 }
    }catch(FileNotFoundException e)                        //deal with errors
 	 {
@@ -174,7 +175,6 @@ public class DataManager implements ColorStoreInfo                              
     {
     	ioe.printStackTrace();
     }
-          
   }	 
       
    
@@ -307,7 +307,7 @@ public class DataManager implements ColorStoreInfo                              
 	     }
 	      raf.seek(offset);                       // get the location of word in data file
 		  data = raf.readLine();
-	     
+	      raf.close();
 	     }catch(FileNotFoundException e)
 		 {
 				e.printStackTrace();
