@@ -17,18 +17,18 @@ import mytrie.*;
 public class DataManager implements ColorStoreInfo                                                        //  棰滆壊,璋冮敊
 {
 	static Trie trie;
-   static Synset[] n_cache; 
+   static Synset[] n_cache;  //create cache for different types of words
    static Synset[] v_cache;
    static Synset[] a_cache;
    static Synset[] r_cache; //????
-   static HashMap<String,String> n_index,
+   static HashMap<String,String> n_index,          //the map from word to its line in index
                                  v_index,
                                  a_index,
                                  r_index;
    
-    static Map<Integer,byte[]> color_map;                    //????
+    static HashMap<Integer,byte[]> color_map;                    //the map from a synset's hashcode to its color
    
-   private static DataManager instance;
+   private static DataManager instance;                        //singleton class
    private DataManager(){}
    public static DataManager getSingleton(){
 	if (instance==null){
@@ -36,19 +36,19 @@ public class DataManager implements ColorStoreInfo                              
 	}
 	return instance;
    }
-   static                                                                  //鍒濆鍖栧潡锛屽皢index鍒嗙被璇诲叆鍐呭瓨锛屼互map褰㈠紡瀛樺偍
+   static                                                             //鍒濆鍖栧潡锛屽皢index鍒嗙被璇诲叆鍐呭瓨锛屼互map褰㈠紡瀛樺偍
    {
 	 
 	 RandomAccessFile raf; 
 	 trie = new Trie();
-	  n_cache = new Synset[10000];                    //缂撳瓨  
+	  n_cache = new Synset[10000];                    //缂撳瓨    
 	  v_cache = new Synset[10000];                    //缂撳瓨
 	  a_cache = new Synset[10000];                    //缂撳瓨
 	  r_cache = new Synset[10000];                    //缂撳瓨
 	 
 	 File n_index_file = new File("./dict/index.noun");                //鍥涗釜绱㈠紩鐨勭浉瀵硅矾寰�
 	 File v_index_file = new File("./dict/index.verb");
-	 File a_index_file = new File("./dict/index.adj");
+	 File a_index_file = new File("./dict/index.adj");                 //create File by relative address
 	 File r_index_file = new File("./dict/index.adv");
 	 
 	 /*
@@ -61,7 +61,7 @@ public class DataManager implements ColorStoreInfo                              
 	 
 	  n_index = new HashMap<String,String>();                                     //鍥涚鍗曡瘝寤虹珛 鍗曡瘝鍒板搴攊ndex琛岀殑map
 	  v_index = new HashMap<String,String>();
-	  a_index = new HashMap<String,String>();
+	  a_index = new HashMap<String,String>();                                     //four maps to store the lines in index files
 	  r_index = new HashMap<String,String>();
 	  
 	 /*File temp = new File("../dict/preindex.adj");
@@ -77,7 +77,7 @@ public class DataManager implements ColorStoreInfo                              
 	 String[] strs;                                                      //瀵规瘡琛宨ndex鍒囪瘝鐨勬暟缁�
 	 //long totallen;
 	 
-	 File[] index_file ={n_index_file,v_index_file,a_index_file,r_index_file};
+	 File[] index_file ={n_index_file,v_index_file,a_index_file,r_index_file};   //create array for the following circle
 	 HashMap[] index_map = {n_index,v_index,a_index,r_index};
 	 
 	 /*for(int i =0 ;i<4;i++)
@@ -116,33 +116,33 @@ public class DataManager implements ColorStoreInfo                              
 	 for(int i = 0;i < 4 ;i++)
 	 {
 		 //System.out.println("for");
-		 raf = new RandomAccessFile(index_file[i], "r");
+		 raf = new RandomAccessFile(index_file[i], "r");        
 		 while(true)
 		 {
 			 //System.out.println("true");
 		    inde = raf.readLine();
 		    
 		    
-		    if(inde==null)      //鏂囦欢鏈熬 
+		    if(inde==null)      //鏂囦欢鏈熬                        //if this raf arrives the end, break
 		       break;
 			     
-		    strs = inde.split(" ");
-		    wor = strs[0];
+		    strs = inde.split(" ");                   // cut the line 
+		    wor = strs[0];                            // get the word
 		    //System.out.println(inde);
-		    if(wor.length()==0)        //璺宠繃寮�ご鐨勮鏄�
+		    if(wor.length()==0)        //璺宠繃寮�ご鐨勮鏄�   
 		    {
-		    	//System.out.println("skip");
-		    	continue;
+		    	//System.out.println("skip");                 
+		    	continue;                          //skip the first interpretations
 		    }
 		    else
 		    {
-			 index_map[i].put(wor,inde);   //鏀惧叆map
-			 trie.insert(wor);
+			 index_map[i].put(wor,inde);   //鏀惧叆map     //put them into maps
+			 trie.insert(wor);                             // put into trie
 		    }
 		    //System.out.println("true end");
 		}
 	 }
-   }catch(FileNotFoundException e)
+   }catch(FileNotFoundException e)                        //deal with errors
 	 {
 		e.printStackTrace();
      }
@@ -151,20 +151,24 @@ public class DataManager implements ColorStoreInfo                              
 		e.printStackTrace();
      }
 	                                                             //????
-     color_map = new TreeMap<Integer,byte[]>();
+     color_map = new HashMap<Integer,byte[]>();                 //read the current files of colors
      try
      {
-       FileInputStream fis = new FileInputStream("store_color.txt");
-       Scanner scanner = new Scanner(fis);
+       FileInputStream fis = new FileInputStream("store_color.txt");    // by byte stream
        byte[] cbuf = new byte[STORENUM*4];
        int hash_code;
-       while(scanner.hasNext()){
-    	   hash_code=scanner.nextInt();
-    	   for (int i=0;i<STORENUM*4;i++)
-    		   cbuf[i]=scanner.nextByte();
+       while(true){
+    	   hash_code=0;
+    	   int i=fis.read();                                        //read all the relationships ,put them into the maps
+    	   if (i==-1)
+    		   break;
+    	   hash_code=i-'0';
+    	   while ((i=fis.read())!=' '){
+    		   hash_code=hash_code*10+i-'0';
+    	   }
+    	   fis.read(cbuf,0,STORENUM*4);
     	   color_map.put(hash_code,cbuf);
-    	   if (hash_code==39246969)
-    		   System.out.println(color_map.get(hash_code)[0]);
+    	   
        }
     }catch(IOException ioe)
     {
@@ -177,13 +181,13 @@ public class DataManager implements ColorStoreInfo                              
    
 	
    public IndexEntry getIndex(String word,PartOfSpeech pos)   //鏍规嵁鍗曡瘝 鍜岃瘝鎬�锛屽湪map涓煡璇�锛岃В鏋愬苟杩斿洖鏈夊叧绱㈠紩鐨刬ndexentry绫�
-  {
+  {                                                          //get the outcome of dealing with index
 	 word = word.replace(' ', '_');
-	 word = word.toLowerCase();
+	 word = word.toLowerCase();                           // pre operation
 	 String index_line =null;
 	 String[] strs;
 		 
-	 switch(pos)
+	 switch(pos)                    // open corresponding index files
 	 {                                   //lemma pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...] 
 	  case NOUN :                        //abasement n 2 3 @ ~ + 2 1 14248927 00269679  
 		 index_line = n_index.get(word); //  0       1 2 3 4 5 6 7 8     9     10                 protected String lemma;
@@ -206,22 +210,22 @@ public class DataManager implements ColorStoreInfo                              
 		  break;
 		 
 	 }
-	     if(index_line == null)
+	     if(index_line == null) 
 	    	 return null;
-	     strs = index_line.split(" ");          //鍒囪瘝                                                                    // protected PartOfSpeech pos;
+	     strs = index_line.split(" ");          //cut the line 鍒囪瘝                                                                    // protected PartOfSpeech pos;
 		 //entry.lemma = word;                                                                              // protected int synset_cnt;
 		 //entry.pos = pos;                                                                               //protected int p_cnt;
 		 //entry.synset_cnt = strs[2];                                                                      //         protected String[] ptr_symbols;
 		 //entry.p_cnt = strs[3];                                                                             //  protected int sense_cnt;
-		 String ptr_sym[] = new String[Integer.parseInt(strs[3])];                                            		 //protected int tagsense_cnt;
+		 String ptr_sym[] = new String[Integer.parseInt(strs[3])];  //get data by its location                                            		 //protected int tagsense_cnt;
 		 for(int i = 0 ;i<Integer.parseInt(strs[3]);i++)                                              			                //protected int[] synset_offsets;
 		      ptr_sym[i] = strs[4+i];
 		 //entry.tagsense_cnt = strs[5+strs[3]];
 		 
-		 int[] syn_offsets = new int[Integer.parseInt(strs[2])];
+		 int[] syn_offsets = new int[Integer.parseInt(strs[2])];        // pay attention to the change between different types of numbers
 		 for(int i = 0 ;i < Integer.parseInt(strs[2]) ;i++)
 			 syn_offsets[i] =Integer.parseInt(strs[6+Integer.parseInt(strs[3])+i]);
-		 		 
+		 		                                                                            //create new object by constructors
 		 IndexEntry entry = new IndexEntry(word,pos,Integer.parseInt(strs[2]),Integer.parseInt(strs[3]),ptr_sym,Integer.parseInt(strs[5+Integer.parseInt(strs[3])]),syn_offsets);	 
 	     //IndexEntry(String lemma,PartOfSpeech pos,int synset_cnt,int p_cnt,String[] ptr_symbols,int tagsense_cnt,int[] synset_offsets)
 	 return entry;
@@ -230,17 +234,17 @@ public class DataManager implements ColorStoreInfo                              
    
    
    public Synset getSynset(int offset,PartOfSpeech pos)       //璇诲彇synset锛� 鍏堣繘鍏ョ紦瀛橈紝鏈夊垯鐩存帴杩斿洖锛屽惁鍒欒繘鍏ata锛屽啓缂撳瓨锛岃祴鍊艰繑鍥�
-   {
+   {                                                          //get synset by a word's offset and its attribute(n,v,r,a,s)
 	   Synset   syn = new Synset();                           //杩斿洖鍙橀噺
 	   String[] strs;
 	   String  data = null;                                          //杈呭姪鎷嗚瘝
-	   int add = offset%10000;                                   //杞崲cache鍦板潃
-	   int local,lenofgloss;
+	   int add = offset%10000;                                     //  get the location in cache      杞崲cache鍦板潃
+	   int local,lenofgloss;                                      //assistant variables
 	   //boolean judge_cache =false;
-	   switch(pos)                                                         //verb鏈塮rames
+	   switch(pos)                                            // if the word has been in cache ,get out of and return it
 	   {
 	     case NOUN: 
-		   if(n_cache[add]!=null && n_cache[add].getOffset() == offset && n_cache[add].getSSType().equals(pos))                            
+		   if(n_cache[add]!=null && n_cache[add].getOffset() == offset && n_cache[add].getSSType().equals(pos))  //judge whether they are the same                          
 		   {
 			   return n_cache[add];
 		   }
@@ -277,7 +281,7 @@ public class DataManager implements ColorStoreInfo                              
 	     
 	     RandomAccessFile raf = null;
 	     try{
-	     switch(pos)
+	     switch(pos)                //open corresponding data file 
 	     {
 	        case NOUN:
 	        	/*RandomAccessFile*/ raf = new RandomAccessFile(new File("./dict/data.noun"),"r");
@@ -301,7 +305,7 @@ public class DataManager implements ColorStoreInfo                              
 	        default:
 	            
 	     }
-	      raf.seek(offset);                                                                      //瀹氫綅
+	      raf.seek(offset);                       // get the location of word in data file
 		  data = raf.readLine();
 	     
 	     }catch(FileNotFoundException e)
@@ -313,8 +317,8 @@ public class DataManager implements ColorStoreInfo                              
 				e.printStackTrace();
 		 }
 	     
-		                                                                  //璇昏
-		  strs = data.split(" ");                                                                //鎷嗚瘝
+		                                               //                                                                  
+		  strs = data.split(" ");                      //cut the line,then get different elements by its location
           // synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss 
 		//    00072592        04          n        02        omission 1 skip 0             005   @ 00068933 n 0000   + 02588754 v 0202   + 00607944 v 0105 + 00607346 v 0103 ~ 00064448 n 0000 | a mistake resulting from neglect  			  
 		  //int offset = Integer.parseInt(strs[0]);                                // protected int offset;
@@ -328,11 +332,11 @@ public class DataManager implements ColorStoreInfo                              
 		  {
 			   //if(strs[2]=="a"||strs[2]=="s")  //adj 鍜宎djs瑕佸幓鎺塵arker
 			  if(pos.equals(PartOfSpeech.forString("a"))||pos.equals(PartOfSpeech.forString("s")))
-			  {
+			  {                                           // for some adjective word, we should cut the suffix of(a) or (p),saving it as another attribute
 				String worsen_tmp = strs[4+2*i];
-				if(worsen_tmp.contains("("))
+				if(worsen_tmp.contains("("))                               //if contains '('
 				{	
-				  int loc = worsen_tmp.lastIndexOf("(");
+				  int loc = worsen_tmp.lastIndexOf("(");                    //cut the word
 				  String way_put = worsen_tmp.substring(loc+1,loc+2);
 				  worsen_tmp = worsen_tmp.substring(0,loc);
 				  
@@ -340,7 +344,7 @@ public class DataManager implements ColorStoreInfo                              
 				}
 				else
 				{
-					wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i],16));
+					wordsen[i] = new WordSense(worsen_tmp,Integer.parseInt(strs[5+2*i],16)); //create new object
 				}
 			  }
 			  else
@@ -364,7 +368,7 @@ public class DataManager implements ColorStoreInfo                              
 			   }
 //	0		1 2  3  4     5  6  7   8      9  10  11  12     13  14 15 16 17 18
 //00006735 29 v 01 wheeze 0 002 @ 00001740 v 0000 + 00824340 n 0101 01 + 02 00 | breathe with difficulty			   
-			   if(pos.equals(PartOfSpeech.forString("v")))                                         //verb鏈塮rames 
+			   if(pos.equals(PartOfSpeech.forString("v")))               //for a verb,it has frames,needing special operation 
 			   {
 				   local += 4*p_cnt+1;    //瀹氫綅鍒皀umofframes  15
 				   int lenofframes = Integer.parseInt(strs[local]);//1
@@ -377,7 +381,7 @@ public class DataManager implements ColorStoreInfo                              
 				   }
 				   		   
 				   
-				   lenofgloss = strs.length-local-2-3*lenofframes;//-3-2*lenofframes;     // protected String[] glosses;
+				   lenofgloss = strs.length-local-2-3*lenofframes;//-3-2*lenofframes;     // save glosses;
 				   String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
 				   glosses[0] = "";
 				   for(int i =0; i<lenofgloss ;i++)
@@ -392,7 +396,7 @@ public class DataManager implements ColorStoreInfo                              
 				   syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,frames,glosses); 
 			   }
 			   else
-			   {                                                // protected SynsetFrame[] frames;
+			   {                                                // save glosses
 			      lenofgloss = strs.length-local-p_cnt*4-2;     // protected String[] glosses;
 			      String[] glosses = new String[1];//String[] glosses = new String[lenofgloss];
 			      glosses[0]="";
@@ -403,10 +407,10 @@ public class DataManager implements ColorStoreInfo                              
 				     glosses[0] +=" ";
 			      }
 			   		                          
-			      syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,glosses);
+			      syn =new Synset(offset,lex_filenum,ss_type,w_cnt,wordsen,p_cnt,ptrs,glosses); //create new object
 	//public Synset(int offset,int lex_filenum,PartOfSpeech ss_type,int w_cnt,WordSense[] words,int p_cnt,SynsetPointer[] ptrs,SynsetFrame[] frames,String[] glosses)		   
 			   }
-			   switch(pos) //5涓�
+			   switch(pos) //put the new object into cache
 			   {
 			     case NOUN:
 				    n_cache[add] = syn;                 //鏀惧叆缂撳瓨
@@ -494,22 +498,22 @@ public class DataManager implements ColorStoreInfo                              
    
    
    public Synset[] lookup(String word, PartOfSpeech pos)      //杩斿洖鍗曡瘝瀵瑰簲璇嶆�鐨勬墍鏈�synset
-   {
+   {                                                      //return all the synset which has the word 
 	   
-	   IndexEntry tmp = getIndex(word,pos);     //???缂烘瀯閫犲嚱鏁�
+	   IndexEntry tmp = getIndex(word,pos);     // create the indexentry
 	   if(tmp == null)
 	      return null;
-	   int[] offsets = tmp.getSynsetOffets();
+	   int[] offsets = tmp.getSynsetOffets();   // get the word's offsets in data file
 	   Synset[] syn = new Synset[tmp.getSynsetCount()];
 	   for(int i =0 ;i < tmp.getSynsetCount();i++)
 	   {
-		   syn[i] = getSynset(offsets[i],pos);
+		   syn[i] = getSynset(offsets[i],pos);     //use the function get its synsets
 	   }
 	   return syn;   
    }
    
    
-   public static void main(String[] args)
+   public static void main(String[] args)    //test the opeartion of files
    {
 	 System.out.println("start");
 	
@@ -580,18 +584,16 @@ public class DataManager implements ColorStoreInfo                              
     * 浠ヤ笅鏄柊鍔犲叆鐨凜olor鐩稿叧鐨勮鍐欐搷浣滐紝鍒嗗埆鏄疌olor鐨勫啓鍏ュ拰璇诲嚭鎿嶄綔锛孋olor绫荤殑澹版槑璇﹁Color銆俲ava
     * By Zero锛�
     */
-   public boolean setColor(Synset synset, Colors colors){                  //????
+   public boolean setColor(Synset synset, Colors colors){                  //set colors for a synset
 	   
 	   int code = synset.hashCode();
 	   byte[] t = colors.serialize();//color_map.get(code);
        color_map.put(code, t);
 	   return true;
    }
-   public Colors getColor(Synset synset)
+   public Colors getColor(Synset synset)   //get the synset's colors
    {
 	   int code = synset.hashCode();
-	   if (code==39246969)
-		   System.out.println(color_map.get(code)[0]);
 	   if(color_map.containsKey(code))
 	   {
 		   return new Colors(color_map.get(code));
@@ -601,7 +603,7 @@ public class DataManager implements ColorStoreInfo                              
 	   return new Colors();
        }
    }
-   public void writeColor()
+   public void writeColor()               //write current colors of synsets back to a file,storing them for the next time use
    {
 	 try  
 	 { 
@@ -610,9 +612,7 @@ public class DataManager implements ColorStoreInfo                              
 	   {
 		   fos.write(key.toString().getBytes());
 		   fos.write((byte) (' '));
-		   byte[] cbuf=color_map.get(key);
-		   for (int i=0;i<STORENUM*4;++i)
-			   fos.write((cbuf[i]+" ").getBytes());
+		   fos.write(color_map.get(key));
 	   }
 	   fos.close();
 	 }catch (IOException ioe)
