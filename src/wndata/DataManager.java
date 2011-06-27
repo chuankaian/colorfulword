@@ -166,7 +166,6 @@ public class DataManager implements ColorStoreInfo                              
     	   while ((i=fis.read())!=' '){
     		   hash_code=hash_code*10+i-'0';
     	   }
-    	   System.out.println(hash_code);
     	   fis.read(cbuf,0,STORENUM*4);
     	   color_map.put(hash_code,cbuf);
     	   
