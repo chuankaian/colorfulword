@@ -40,8 +40,17 @@ public class Trie {
 	public WordList getWordList(String pattern,int maxsize){
 		WordList mList=new WordList();
 		mList.setMaxSize(maxsize);
+		boolean b = true;
+		for (int i=0;i<pattern.length();++i) 
+			if (pattern.charAt(i)=='?'||pattern.charAt(i)=='*') b=false; 
 		if (pattern.charAt(pattern.length()-1)!='*') pattern+='*';
 		search(0,root,pattern,mList,false);
+		for (int i=pattern.length()-1;b&&i>=0&&mList.getSize()==0;--i){
+			char[] st=pattern.toCharArray();
+			st[i]='?'; 
+			String tmp=new String(st);
+			search(0,root,tmp,mList,false);			
+		}
 		return mList;
 	}
 	
