@@ -18,7 +18,7 @@ public class Colors implements ColorStoreInfo{
 	public Colors(byte[] data){
 		this();
 		for (int i=0;i<STORENUM;++i){
-//			System.out.println((int)data[i*4]+","+(int)data[i*4+1]+" "+(int)data[i*4+2]+","+(int)data[i*4+3]);
+			System.out.println((int)data[i*4]+","+(int)data[i*4+1]+" "+(int)data[i*4+2]+","+(int)data[i*4+3]);
 			this.data[i].setR((int)(data[i*4])+128);
 			this.data[i].setG((int)(data[i*4+1])+128);
 			this.data[i].setB((int)(data[i*4+2])+128);
@@ -35,7 +35,7 @@ public class Colors implements ColorStoreInfo{
 			res[i*4+1]=(byte) (data[i].getG()-128);
 			res[i*4+2]=(byte) (data[i].getB()-128);
 			res[i*4+3]=(byte) (data[i].getA()-128);
-//			System.out.println((int)res[i*4]+","+(int)res[i*4+1]+" "+(int)res[i*4+2]+","+(int)res[i*4+3]);
+			System.out.println((int)res[i*4]+","+(int)res[i*4+1]+" "+(int)res[i*4+2]+","+(int)res[i*4+3]);
 		}
 		return res;
 	}
