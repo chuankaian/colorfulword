@@ -2,13 +2,12 @@ package browser;
 
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 
 public class HelpDialog extends JDialog{
-	private TextArea text=new TextArea("Also See Documentation-_-y-~~~",5,10,3);
-	private Button button=new Button("Confirm");
-	HelpDialog(Dialog owner){
+	private JTextArea text=new JTextArea("Also See Documentation-_-y-~~~");
+	private JButton button=new JButton("Confirm");
+	HelpDialog(Frame owner){
 		super(owner,"Help",true);
 		setPreferredSize(new Dimension(300,200));
 		text.setEditable(false);

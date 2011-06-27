@@ -1,16 +1,16 @@
 package browser;
 
-import java.awt.*;
 import java.awt.event.*;
-
+import java.awt.*;
 import javax.swing.*;
 
+
 public class AboutDialog extends JDialog{
-	private TextArea text=new TextArea("About: ColorfulWord\nAuthor: 刘智猷  张泰之  徐源盛  安传凯\nVersion：1.0b\n",5,10,3);
-	private Button button=new Button("Confirm");
-	AboutDialog(Dialog owner){
+	private JTextArea text=new JTextArea("About: ColorfulWord\nAuthor: 刘智猷  张泰之  徐源盛  安传凯\nVersion：0.999\n");
+	private JButton button=new JButton("Confirm");
+	AboutDialog(Frame owner){
 		super(owner,"About",true);
-		setPreferredSize(new Dimension(300,200));
+		setPreferredSize(new Dimension(280,200));
 		text.setEditable(false);
 		
 		add(text);
