@@ -12,6 +12,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -315,6 +317,15 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
             });
 
         pack();
+        addWindowListener(new WindowAdapter() {
+                public void windowClosed(WindowEvent e) {
+                    System.out.println("Deading");
+                }
+                public void windowClosing(WindowEvent e) {
+                    System.out.println("Deading2");
+                    manager.writeColor();
+                }
+            });
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -333,6 +344,8 @@ public class Browser extends JFrame implements ActionListener, HyperlinkListener
         String cmd = evt.getActionCommand();
 
         if (cmd.equals("Exit")) {
+            System.out.println("abcd");
+            manager.writeColor();
             System.exit(0);
         } else if (cmd.equals("About us")) {
             // showAbout();
