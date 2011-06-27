@@ -2,46 +2,47 @@ package mytrie;
 import java.util.*;
 
 /**
- * WordListÀà£¬µ¥´ÊÁÐ±íÀà
+ * WordListï¿½à£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½
  */
 public class WordList {
-	ArrayList<String> strList=new ArrayList<String>();
-	int maxsize;
+	private ArrayList<String> strList=new ArrayList<String>();
+	private int maxsize;
 	/**
-	 * ÎÞ²Î¹¹Ôìº¯Êý
+	 * ï¿½Þ²Î¹ï¿½ï¿½ìº¯ï¿½ï¿½
 	 */
 	public WordList(){
 		strList.clear();
 		maxsize=0;
 	}
 	/**
-	 * ½«WordÌí¼ÓÈçList
+	 * ï¿½ï¿½Wordï¿½ï¿½ï¿½ï¿½ï¿½List
 	 */
-	public void putWord(String word){	
-		strList.add(word);
+	public void putWord(String word){
+		if (strList.size()<maxsize)
+			strList.add(word);
 	}
 	/**
-	 * µÃµ½µÚindex¸öµ¥´Ê£¬´Ó0±àºÅ
+	 * ï¿½Ãµï¿½ï¿½ï¿½indexï¿½ï¿½Ê£ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½
 	 */
 	public String getWord(int index){
 	
 		return strList.get(index);
 	}
 	/**
-	 * µÃµ½ListÖÐËùº¬µ¥´ÊÊý
+	 * ï¿½Ãµï¿½Listï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */		
 	public int getSize(){
 		return strList.size();
 	}
 	/**
-	 * µÃµ½±íÖÐËùÄÜº¬×î´óµ¥´ÊÊý
+	 * ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üºï¿½ï¿½ï¿½óµ¥´ï¿½ï¿½ï¿½
 	 */
 	public int getMaxSize(){
 	
 		return maxsize;
 	}
 	/**
-	 * ÉèÖÃÁÐ±íÖÐËùÄÜº¬×î´óµ¥´ÊÊý
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Üºï¿½ï¿½ï¿½óµ¥´ï¿½ï¿½ï¿½
 	 */
 	public void setMaxSize(int size){
 		maxsize=size;
