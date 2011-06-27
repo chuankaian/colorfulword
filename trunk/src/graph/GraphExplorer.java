@@ -56,6 +56,7 @@ import wndata.Synset;
 import wndata.SynsetPointer;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
@@ -98,7 +99,9 @@ public class GraphExplorer extends JApplet {
 
     Map<Synset, Gnode> map;
     
-    public static final int EDGE_LENGTH = 70;
+    boolean[] permit;
+    
+    public static final int EDGE_LENGTH = 50;
     public static final int HEIGHT = 800;
     public static final int WIDTH = 800;
     /**
@@ -106,17 +109,17 @@ public class GraphExplorer extends JApplet {
      * create a graph.
      * 
      */
-    public GraphExplorer(Synset synset) {
+    public GraphExplorer(Synset synset,boolean[] p) {
         
         // create a simple graph for the demo
 //        graph = new SparseMultigraph<Gnode,String>();
     	map=new HashMap<Synset, Gnode>();
+    	permit=p;
     	Graph<Gnode,Gedge> ig = Graphs.<Gnode,Gedge>synchronizedDirectedGraph(new DirectedSparseMultigraph<Gnode,Gedge>());
 
         ObservableGraph<Gnode,Gedge> og = new ObservableGraph<Gnode,Gedge>(ig);
         graph=og;
-        this.layout = new SpringLayout<Gnode,Gedge>(graph,
-                new ConstantTransformer(EDGE_LENGTH));
+        layout = new SpringLayout<Gnode,Gedge>(graph,new ConstantTransformer(EDGE_LENGTH));
         Dimension d=new Dimension(HEIGHT,WIDTH);
         layout.setSize(d);
         vv =  new VisualizationViewer<Gnode,Gedge>(layout);
@@ -135,14 +138,15 @@ public class GraphExplorer extends JApplet {
 			        double x=layout.getX(gnode);
 			        double y=layout.getY(gnode);
 			        SynsetPointer[] sp=gnode.synset.getPointers();
-			        for (int i=0;i<sp.length;++i){
-			        	Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
-			        	if (map.get(synset_)==null){
-			        		map.put(synset_, new Gnode(synset_));
-				        	layout.setLocation(map.get(synset_), x + 0.5 * EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), y + 0.5*EDGE_LENGTH * Math.sin(Math.PI*2/sp.length*i));
+			        for (int i=0;i<sp.length;++i)
+			        	if (permit[sp[i].getPointerSymbol().ordinal()]){
+			        		Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
+			        		if (map.get(synset_)==null){
+			        			map.put(synset_, new Gnode(synset_));
+			        			layout.setLocation(map.get(synset_), x + 0.5 * EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), y + 0.5*EDGE_LENGTH * Math.sin(Math.PI*2/sp.length*i));
+			        		}
+			        		graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),gnode,map.get(synset_));
 			        	}
-			        	graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),gnode,map.get(synset_));
-			        }
 					layout.initialize();
 					relaxer.resume();
 					layout.lock(false);
@@ -192,14 +196,15 @@ public class GraphExplorer extends JApplet {
         map.get(synset).extended=true;
     	layout.setLocation(map.get(synset), 300, 300);
         SynsetPointer[] sp=synset.getPointers();
-        for (int i=0;i<sp.length;++i){
-        	Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
-        	if (map.get(synset_)==null){
-        		map.put(synset_, new Gnode(synset_));
-            	layout.setLocation(map.get(synset_), 300 + EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), 300+Math.sin(Math.PI*2/sp.length*i));
+        for (int i=0;i<sp.length;++i)
+        	if (permit[sp[i].getPointerSymbol().ordinal()]){
+        		Synset synset_=DataManager.getSingleton().getSynset(sp[i].getSynsetOffset(),sp[i].getPartOfSpeech());
+        		if (map.get(synset_)==null){
+        			map.put(synset_, new Gnode(synset_));
+        			layout.setLocation(map.get(synset_), 300 + EDGE_LENGTH * Math.cos(Math.PI*2/sp.length*i), 300+Math.sin(Math.PI*2/sp.length*i));
+        		}
+        		graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),map.get(synset),map.get(synset_));
         	}
-        	graph.addEdge(new Gedge(sp[i].getPointerSymbol().getDescription()),map.get(synset),map.get(synset_));
-        }
         layout.initialize();        
         relaxer.resume();
         getContentPane().add(vv);
@@ -209,7 +214,7 @@ public class GraphExplorer extends JApplet {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Synset start =DataManager.getSingleton().lookup("hire", PartOfSpeech.forChar('n'))[0];
-        final GraphExplorer demo = new GraphExplorer(start);
+        final GraphExplorer demo = new GraphExplorer(start,new boolean[50]);
         
         frame.getContentPane().add(demo);
         frame.pack();
