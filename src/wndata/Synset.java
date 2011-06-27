@@ -5,14 +5,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-//LZYNOTE:瀹冨湪鏋勯��犺繖浜涗笢瑗跨殑鏃跺��欑敤鐨勬槸涓��涓猺ead鏂规硶浠庡叾灏佽鐨刉ordNetFileReader绫讳腑璇绘暟鎹紝浣犲彲浠ユ妸杩欎釜WordNetFileReader鎼炴噦锛岀敤瀹冪殑Read鏂规硶锛屾垨鑰呰嚜宸卞疄鐜颁竴涓鏁版嵁鐨勯��昏緫锛屽啀鍐欎竴涓瀯閫犲嚱鏁般����
+//LZYNOTE:瀹冨湪鏋勯��犺繖浜涗笢瑗跨殑鏃跺��欑敤鐨勬槸涓��涓猺ead鏂规硶浠庡叾灏佽鐨刉ordNetFileReader绫讳腑璇绘暟鎹紝浣犲彲浠ユ妸杩欎釜WordNetFileReader鎼炴噦锛岄1�7敤�1�7�冪殑Read鏂规硶锛屾垨鑰呰嚜宸卞疄鐜颁竴涓鏁版嵁鐨勯��昏緫锛屽啀鍐欎竴涓�1�7�閫犲嚱鏁般����
 public class Synset {
 
     protected int offset;
     protected int lex_filenum;
     protected PartOfSpeech ss_type;
     protected int w_cnt;
-    //LZYNOTE:杩欎釜WordSense鎴戜滑鏄笉鏄彲浠ヤ笉瑕侊紵
+   
     protected WordSense[] words;
     protected int lex_id;
     protected int p_cnt;
@@ -20,7 +20,7 @@ public class Synset {
     protected SynsetFrame[] frames;
     protected String[] glosses;
     
-    public Synset()
+    public Synset()                            //���캯��
     {
     	
     }
