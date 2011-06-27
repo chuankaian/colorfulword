@@ -28,19 +28,13 @@ public enum PartOfSpeech {
      */
     protected String description;
 
-    /**
-     * Construct and return a new PartOfSpeech with the given symbol,
-     * number, and description.
-     * This method is private as only the predefined parts of speech
-     * can be used.
-     */
-    private PartOfSpeech(char symbol, int number, String description) {
+    private PartOfSpeech(char symbol, int number, String description) {     //新增构造函数
         this.symbol = symbol;
         this.number = number;
         this.description = description;
     }
     
-    public boolean equals(PartOfSpeech pos)
+    public boolean equals(PartOfSpeech pos)                                //判断对象相等
     {
     	if((this.symbol ==pos.symbol )&& (this.number == pos.number) && (this.description == pos.description))
     		return true;
