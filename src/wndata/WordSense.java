@@ -48,10 +48,7 @@ public class WordSense {
     protected String word;
     protected int lex_id;
     protected String way_put;
-    /**
-     * Note: This field is not set by read().
-     * @see setSenseKey
-     */
+
     public WordSense()
     {
     	
@@ -68,10 +65,7 @@ public class WordSense {
     	this.way_put = way_put;
     }
     protected String sense_key;
-    /**
-     * Note: This field is not set by read().
-     * @see setSenseNum
-     */
+
     protected int sense_num;
    
     public String getway_put()
