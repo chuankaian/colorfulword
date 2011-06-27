@@ -155,9 +155,9 @@ public class DataManager implements ColorStoreInfo                              
      try
      {
        FileInputStream fis = new FileInputStream("store_color.txt");    // by byte stream
-       byte[] cbuf = new byte[STORENUM*4];
        int hash_code;
        while(true){
+           byte[] cbuf = new byte[STORENUM*4];
     	   hash_code=0;
     	   int i=fis.read();                                        //read all the relationships ,put them into the maps
     	   if (i==-1)
