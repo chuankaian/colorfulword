@@ -13,8 +13,8 @@ public class ColorManager implements ColorStoreInfo{
 		weight.put("antonym",new Float(0.01f));
 		weight.put("hypernym",new Float(0.1f));
 		weight.put("instance hypernym",new Float(0.1f));
-		weight.put("hyponym",new Float(0.3f));
-		weight.put("instance hyponym",new Float(0.3f));
+		weight.put("hyponym",new Float(0.2f));
+		weight.put("instance hyponym",new Float(0.2f));
 		weight.put("member holonym",new Float(0.05f));
 		weight.put("substance holonym",new Float(0.05f));
 		weight.put("part holonym",new Float(0.05f));
@@ -22,7 +22,7 @@ public class ColorManager implements ColorStoreInfo{
 		weight.put("substance meronym",new Float(0.15f));
 		weight.put("part meronym",new Float(0.15f));
 		weight.put("attribute",new Float(0.075f));
-		weight.put("derivationally related form",new Float(0.6f));
+		weight.put("derivationally related form",new Float(0.4f));
 		weight.put("domain of synset - TOPIC",new Float(0.05f));
 		weight.put("member of this domain - TOPIC",new Float(0.15f));
 		weight.put("domain of synset - REGION",new Float(0.05f));
@@ -33,8 +33,8 @@ public class ColorManager implements ColorStoreInfo{
 		weight.put("cause",new Float(0.1f));
 		weight.put("also see",new Float(0.01f));
 		weight.put("verb group",new Float(0.1f));
-		weight.put("similar to",new Float(0.7f));
-		weight.put("particle of verb",new Float(0.6f));
+		weight.put("similar to",new Float(0.5f));
+		weight.put("particle of verb",new Float(0.4f));
 		weight.put("pertainym (for adjectives) or derived from adjective (for adverbs)",new Float(0.6f));
 	}
 	private static ColorManager instance;
@@ -100,15 +100,16 @@ public class ColorManager implements ColorStoreInfo{
 	}
 	static public void main(String[] args){
 		Synset synset=DataManager.getSingleton().lookup("red", PartOfSpeech.forChar('n'))[0];
-		ColorManager.getSingleton().setColor(synset, new java.awt.Color(255,0,0,0));
-/*		Colors colors=DataManager.getSingleton().getColor(synset);
+//		ColorManager.getSingleton().setColor(synset, new java.awt.Color(255,0,0,0));
+		Colors colors=DataManager.getSingleton().getColor(synset);
 		for (int i=0;i<STORENUM;++i)
 			System.out.println((int)colors.getR(i)+","+(int)colors.getG(i)+","+(int)colors.getB(i));
+		System.out.println(synset.hashCode());
 		colors.setR(0, 128);
 		colors.setR(3, 63);
 		colors.setR(2, 25);
 		colors.setB(1, 255);
-		DataManager.getSingleton().setColor(synset, colors);*/
+		DataManager.getSingleton().setColor(synset, colors);
 		DataManager.getSingleton().writeColor();
 	}
 }
