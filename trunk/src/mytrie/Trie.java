@@ -1,6 +1,6 @@
 package mytrie;
 /**
- * Tire�࣬���ʹ���һ��Trie����
+ * Tire�࣬���ʹ���һ��Trie��
  * @author Lostmonkey
  * version 1.0
  */
@@ -8,9 +8,9 @@ public class Trie {
 
 	TrieNode root=new TrieNode();
 	private void search(int level,TrieNode now,String st,WordList mList,boolean checkall){
-		//level��ǰ�Ѷൽ���Ĳ���now��ǰ���ڵ㣬st�������ַ�mList���ѵ��ĵ��ʱ?checkall�Ƿ�����ֹ�*�����ֹ���Ҫcheck���������е��ʡ�
+		//level��ǰ�Ѷൽ��Ĳ���now��ǰ��ڵ㣬st������ַ�mList���ѵ��ĵ��ʱ?checkall�Ƿ�����ֹ�*�����ֹ���Ҫcheck���������е��ʡ�
 		if (now==null) return;
-		if (mList.getSize()>=mList.getMaxSize()) return;		
+		if (mList.getSize()>=mList.getMaxSize()) return;
 		if (now.match(st)) mList.putWord(now.getWord());
 		Character mCh='*';
 		if (!checkall) mCh=st.charAt(level);
@@ -22,7 +22,7 @@ public class Trie {
 			search(level+1,now.getChild(mCh),st,mList,checkall);
 	}
 	/**
-	 * ��Trie���в���һ�����ʡ�
+	 * ��Trie���в���һ��ʡ�
 	 */
 	public void insert(String word){
 
@@ -49,9 +49,9 @@ public class Trie {
 
 class ChildLink{
 	/*
-	 * ���ӵ�������
-	 * ��������Ǹ���mChar����ַ��Ӧ�Ķ���
-	 * ������ӵ�TrieNode����ΪmChild
+	 * ���ӵ�t����
+	 * �������Ǹ���mChar����ַ��Ӧ�Ķ���
+	 * �����ӵ�TrieNode����ΪmChild
 	 *
 	 */
 	Character mchar;
@@ -78,9 +78,9 @@ class ChildLink{
 
 class TrieNode{
 	/*
-	 * TireNode�࣬��ʾTrie����һ���ڵ㡣
-	 * ���˽ڵ��Ӧһ�����ʣ���mWordΪ�˵��ʷ���Ϊnull��
-	 * ������ChildLink������ṹ��ʾ��
+	 * TireNode�࣬��ʾTrie���һ��ڵ㡣
+	 * ��˽ڵ��Ӧһ��ʣ���mWordΪ�˵��ʷ���Ϊnull��
+	 * ������ChildLink��t��ṹ��ʾ��
 	 *
 	 */
 	String mWord;
@@ -90,7 +90,7 @@ class TrieNode{
 		mWord=null;
 	}
 	private ChildLink getByChar(Character ch){
-		//�õ�����������ch����ַ��Ӧ�Ľڵ�
+		//�õ�����t����ch����ַ��Ӧ�Ľڵ�
 		ChildLink pre=null;
 		for (ChildLink tmp=head;tmp!=null&&tmp.getChar()<=ch;tmp=tmp.getNext()) pre=tmp;
 		return pre;
