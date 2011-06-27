@@ -26,7 +26,7 @@ public class DataManager implements ColorStoreInfo                              
                                  a_index,
                                  r_index;
    
-    static HashMap<Integer,byte[]> color_map;                    //????
+    static Map<Integer,byte[]> color_map;                    //????
    
    private static DataManager instance;
    private DataManager(){}
@@ -151,24 +151,20 @@ public class DataManager implements ColorStoreInfo                              
 		e.printStackTrace();
      }
 	                                                             //????
-     color_map = new HashMap<Integer,byte[]>();
+     color_map = new TreeMap<Integer,byte[]>();
      try
      {
        FileInputStream fis = new FileInputStream("store_color.txt");
+       Scanner scanner = new Scanner(fis);
        byte[] cbuf = new byte[STORENUM*4];
        int hash_code;
-       while(true){
-    	   hash_code=0;
-    	   int i=fis.read();
-    	   if (i==-1)
-    		   break;
-    	   hash_code=i-'0';
-    	   while ((i=fis.read())!=' '){
-    		   hash_code=hash_code*10+i-'0';
-    	   }
-    	   fis.read(cbuf,0,STORENUM*4);
+       while(scanner.hasNext()){
+    	   hash_code=scanner.nextInt();
+    	   for (int i=0;i<STORENUM*4;i++)
+    		   cbuf[i]=scanner.nextByte();
     	   color_map.put(hash_code,cbuf);
-    	   
+    	   if (hash_code==39246969)
+    		   System.out.println(color_map.get(hash_code)[0]);
        }
     }catch(IOException ioe)
     {
@@ -594,6 +590,8 @@ public class DataManager implements ColorStoreInfo                              
    public Colors getColor(Synset synset)
    {
 	   int code = synset.hashCode();
+	   if (code==39246969)
+		   System.out.println(color_map.get(code)[0]);
 	   if(color_map.containsKey(code))
 	   {
 		   return new Colors(color_map.get(code));
@@ -612,7 +610,9 @@ public class DataManager implements ColorStoreInfo                              
 	   {
 		   fos.write(key.toString().getBytes());
 		   fos.write((byte) (' '));
-		   fos.write(color_map.get(key));
+		   byte[] cbuf=color_map.get(key);
+		   for (int i=0;i<STORENUM*4;++i)
+			   fos.write((cbuf[i]+" ").getBytes());
 	   }
 	   fos.close();
 	 }catch (IOException ioe)
