@@ -1,0 +1,1 @@
+Colorfulword is an explorer of WordNet database offering user-friendly interface.
